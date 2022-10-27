@@ -1,7 +1,10 @@
 name: service_bloc
 description: Service implement with bloc pattern
 version: 0.0.1
-homepage:
+homepage: https://github.com/aaassseee/service_bloc
+repository: https://github.com/aaassseee/service_bloc/tree/main/service_bloc
+issue_tracker: https://github.com/aaassseee/service_bloc/issues
+
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
