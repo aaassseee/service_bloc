@@ -27,6 +27,7 @@ class ServiceLoadInProgress<ServiceRequestedEvent extends ServiceRequested>
   }
 }
 
+@immutable
 abstract class ServiceResponseState<
     ServiceRequestedEvent extends ServiceRequested> extends ServiceState {
   const ServiceResponseState({required this.event});
