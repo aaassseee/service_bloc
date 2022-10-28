@@ -3,13 +3,13 @@ part of 'service_bloc.dart';
 @immutable
 abstract class ServiceState extends Equatable {
   const ServiceState();
-
-  @override
-  List<Object?> get props => [];
 }
 
 class ServiceInitial extends ServiceState {
   const ServiceInitial();
+
+  @override
+  List<Object?> get props => [];
 }
 
 class ServiceLoadInProgress<ServiceRequestedEvent extends ServiceRequested>
