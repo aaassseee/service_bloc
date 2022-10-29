@@ -50,7 +50,8 @@ abstract class PaginationServiceBloc<
       if (await isEmptyPage(responseData)) {
         _isEmptyReturned = true;
         _responseData ??= responseData;
-        emit(ServiceLoadSuccess(event: event, data: _responseData));
+        emit(ServiceLoadSuccess<PaginationServiceRequestedEvent, ResponseData>(
+            event: event, data: _responseData ?? responseData));
         return;
       }
 
@@ -59,9 +60,11 @@ abstract class PaginationServiceBloc<
       _responseData = processedResponseData;
       _page += 1;
 
-      emit(ServiceLoadSuccess(event: event, data: processedResponseData));
+      emit(ServiceLoadSuccess<PaginationServiceRequestedEvent, ResponseData>(
+          event: event, data: processedResponseData));
     } catch (error) {
-      emit(ServiceLoadFailure(event: event, error: error));
+      emit(ServiceLoadFailure<PaginationServiceRequestedEvent>(
+          event: event, error: error));
     }
   }
 
