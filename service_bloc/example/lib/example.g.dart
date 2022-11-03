@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'modal.dart';
+part of 'example.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
