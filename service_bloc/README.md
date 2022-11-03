@@ -1,6 +1,6 @@
 # service_bloc
 
-Service implement with bloc pattern
+Flutter package for service layer implement with bloc architecture
 
 ## Maintainer
 
