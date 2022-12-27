@@ -1,3 +1,7 @@
+## 0.0.1+3
+
+* update README.md
+
 ## 0.0.1+2
 
 * update example
