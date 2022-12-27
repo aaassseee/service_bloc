@@ -7,7 +7,9 @@ Flutter package for service layer implement with bloc architecture
 Create your own base service bloc
 
 ### Example
+
 - User permission
+
 ```dart
 enum UserPermissionLevel {
   invalid,
@@ -21,32 +23,42 @@ class UserPermissionLevelCubit extends Cubit<UserPermissionLevel> {
 }
 
 abstract class UserPermissionRequiredServiceBloc<
-ServiceRequestedEvent extends ServiceRequested>
-    extends ServiceBloc<ServiceRequestedEvent, ServiceState> {
-  UserPermissionRequiredServiceBloc(
-      {required this.userPermissionLevelCubit,
-        EventTransformer<ServiceRequestedEvent>? eventTransformer})
+ServiceRequestedEvent extends ServiceRequested,
+ResponseData> extends ServiceBloc<ServiceRequestedEvent, ResponseData> {
+  UserPermissionRequiredServiceBloc({required this.userPermissionLevelCubit,
+    EventTransformer<ServiceRequestedEvent>? eventTransformer})
       : super(eventTransformer: eventTransformer);
 
   final UserPermissionLevelCubit userPermissionLevelCubit;
 }
 
-class ProductCheckoutServiceBloc extends UserPermissionRequiredServiceBloc {
-  ProductCheckoutServiceBloc(
-      {required UserPermissionLevelCubit userPermissionLevelCubit})
+class ProductCheckoutServiceRequested extends ServiceRequested {
+  const ProductCheckoutServiceRequested(this.productIdList);
+
+  final List<String> productIdList;
+
+  @override
+  List<Object?> get props => [productIdList];
+}
+
+class ProductCheckoutServiceBloc extends UserPermissionRequiredServiceBloc<
+    ProductCheckoutServiceRequested,
+    String> {
+  ProductCheckoutServiceBloc({required UserPermissionLevelCubit userPermissionLevelCubit})
       : super(userPermissionLevelCubit: userPermissionLevelCubit);
 
   @override
-  FutureOr<void> onRequest(ServiceRequested event, Emitter<ServiceState> emit) {
+  FutureOr<void> onRequest(ProductCheckoutServiceRequested event, Emitter<ServiceState> emit) {
     if (userPermissionLevelCubit.state == UserPermissionLevel.invalid) {
       // TODO: implement permission error
     }
     // TODO: implement onRequest
   }
 }
-
 ```
+
 - Locale
+
 ```dart
 class LocaleRequiredServiceRequested extends ServiceRequested {
   LocaleRequiredServiceRequested({required this.locale});
@@ -54,14 +66,12 @@ class LocaleRequiredServiceRequested extends ServiceRequested {
   final Locale locale;
 
   @override
-  List<Object?> get props => [
-    locale,
-  ];
+  List<Object?> get props => [locale];
 }
 
 abstract class LocaleRequiredServiceBloc<
-ServiceRequested extends LocaleRequiredServiceRequested>
-    extends ServiceBloc<ServiceRequested, ServiceState> {}
+ServiceRequested extends LocaleRequiredServiceRequested,
+ResponseData> extends ServiceBloc<ServiceRequested, ResponseData> {}
 
 class ProductDetailServiceRequested extends LocaleRequiredServiceRequested {
   ProductDetailServiceRequested({
@@ -72,18 +82,18 @@ class ProductDetailServiceRequested extends LocaleRequiredServiceRequested {
   final String productId;
 
   @override
-  List<Object?> get props => [
-    locale,
-    productId,
-  ];
+  List<Object?> get props =>
+      [
+        locale,
+        productId,
+      ];
 }
 
-class ProductDetailServiceBloc
-    extends LocaleRequiredServiceBloc<ProductDetailServiceRequested> {
-
+class ProductDetailServiceBloc extends LocaleRequiredServiceBloc<
+    ProductDetailServiceRequested,
+    ProductDetail> {
   @override
-  FutureOr<void> onRequest(
-      ProductDetailServiceRequested event, Emitter<ServiceState> emit) {
+  FutureOr<void> onRequest(ProductDetailServiceRequested event, Emitter<ServiceState> emit) {
     final locale = event.locale;
     // TODO: implement onRequest
   }
@@ -91,6 +101,31 @@ class ProductDetailServiceBloc
 ```
 
 This two examples shows that you can create your own service bloc with extensibility feature.
+
+## Live Template
+
+Generating boilerplate for service bloc
+
+You can generate service bloc boilerplate code easily by using live template, check
+out [setup](https://www.jetbrains.com/help/idea/creating-and-editing-live-templates.html) to create your own shortcut
+with the following code.
+
+```
+class $SERVICE_NAME$ServiceRequested extends ServiceRequested {
+  const $SERVICE_NAME$ServiceRequested();
+  
+  @override
+  List<Object?> get props => [];
+}
+
+class $SERVICE_NAME$ServiceBloc extends ServiceBloc<$SERVICE_NAME$ServiceRequested, $RETURN_TYPE$> {
+
+  @override
+  FutureOr<void> onRequest($SERVICE_NAME$ServiceRequested event, Emitter<ServiceState> emit) async {
+    $END$// TODO: implement service call
+  }
+}
+```
 
 ## Maintainer
 
