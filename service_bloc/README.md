@@ -1,6 +1,6 @@
 # service_bloc
 
-Flutter package for service layer implement with bloc architecture
+Dart package for service layer implement with bloc architecture
 
 ## Usage
 
@@ -126,6 +126,8 @@ class $SERVICE_NAME$ServiceBloc extends ServiceBloc<$SERVICE_NAME$ServiceRequest
   }
 }
 ```
+
+For more example detail, please check out [example](https://github.com/aaassseee/service_bloc/tree/main/service_bloc/example/lib/).
 
 ## Maintainer
 
