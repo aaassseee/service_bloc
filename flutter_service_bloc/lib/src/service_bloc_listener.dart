@@ -6,7 +6,7 @@ import 'package:service_bloc/service_bloc.dart';
 ///
 /// If parameter [listenWhen] is omitted, default [listenWhen] will only return
 /// true when certain parameter is set. For example [onInitial] [onLoading]
-/// [onResponded] [onSucceed] [onFailed].
+/// [onResponded] [onSucceed] [onFailure].
 class ServiceBlocListener<
     Bloc extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
     ServiceRequestedEvent extends ServiceRequested,
@@ -20,8 +20,8 @@ class ServiceBlocListener<
     this.onInitial,
     this.onLoading,
     this.onResponded,
-    this.onSucceed,
-    this.onFailed,
+    this.onSuccess,
+    this.onFailure,
     Widget? child,
   }) : super(
           key: key,
@@ -38,11 +38,11 @@ class ServiceBlocListener<
 
                 if (current is ServiceLoadSuccess<ServiceRequestedEvent,
                     ResponseData>) {
-                  return onResponded != null || onSucceed != null;
+                  return onResponded != null || onSuccess != null;
                 }
 
                 if (current is ServiceLoadFailure<ServiceRequestedEvent>) {
-                  return onResponded != null || onFailed != null;
+                  return onResponded != null || onFailure != null;
                 }
 
                 return false;
@@ -70,15 +70,15 @@ class ServiceBlocListener<
               if (state
                   is ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>) {
                 final data = state.data;
-                if (onSucceed != null) {
-                  onSucceed(context, state, state.event, data);
+                if (onSuccess != null) {
+                  onSuccess(context, state, state.event, data);
                 }
                 return;
               }
 
               if (state is ServiceLoadFailure<ServiceRequestedEvent>) {
-                if (onFailed != null) {
-                  onFailed(context, state, state.event, state.error);
+                if (onFailure != null) {
+                  onFailure(context, state, state.event, state.error);
                 }
                 return;
               }
@@ -115,14 +115,14 @@ class ServiceBlocListener<
       BuildContext context,
       ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
       ServiceRequestedEvent event,
-      ResponseData? data)? onSucceed;
+      ResponseData? data)? onSuccess;
 
   /// A function which is only called when [listenWhen] is omitted or custom
-  /// [listenWhen] is passed and [onFailed] is not omitted and current state is
+  /// [listenWhen] is passed and [onFailure] is not omitted and current state is
   /// [ServiceLoadFailure].
   final Function(
       BuildContext context,
       ServiceLoadFailure<ServiceRequestedEvent> state,
       ServiceRequestedEvent event,
-      dynamic error)? onFailed;
+      dynamic error)? onFailure;
 }

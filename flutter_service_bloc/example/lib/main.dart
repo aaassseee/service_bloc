@@ -226,8 +226,8 @@ class _OpenLibraryAuthorSearchPageState
                 ),
               ),
             ),
-            onSucceed: (context, state, event, response) => const SizedBox(),
-            onFailed: (context, state, event, error) => const SizedBox(),
+            onSuccess: (context, state, event, response) => const SizedBox(),
+            onFailure: (context, state, event, error) => const SizedBox(),
           ),
         ],
       ),
@@ -247,7 +247,7 @@ class _OpenLibraryAuthorSearchPageState
                   OpenLibraryAuthorSearchServiceBloc,
                   OpenLibraryAuthorSearchServiceRequested,
                   List<OpenLibraryAuthorSearchResult>>(
-                onSucceed: (context, state, event, response) {
+                onSuccess: (context, state, event, response) {
                   return ListView.builder(
                     controller: _scrollController,
                     itemBuilder: (context, index) {
@@ -304,7 +304,7 @@ class OpenLibraryAuthorDetailPage extends StatelessWidget {
             OpenLibraryAuthorDetailServiceRequested, OpenLibraryAuthorDetail>(
           onLoading: (context, state, event) =>
               const Center(child: CircularProgressIndicator()),
-          onSucceed: (context, state, event, response) {
+          onSuccess: (context, state, event, response) {
             return ListView(
               children: [
                 if (response.photoIdList.isNotEmpty) ...[

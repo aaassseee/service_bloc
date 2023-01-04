@@ -10,8 +10,9 @@ dependencies:
   built_value: ^8.4.2
   built_collection: ^5.1.1
   http: ^0.13.5
-  service_bloc:
-    path: ../../service_bloc
+  #  service_bloc:
+  #    path: ../service_bloc
+  service_bloc: '>=1.0.0 <2.0.0'
 
 dev_dependencies:
   build_runner: ^2.3.2
