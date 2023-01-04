@@ -28,37 +28,62 @@ abstract class PaginationServiceBloc<
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
   }) : super(eventTransformer: eventTransformer);
 
+  /// Merged response data, after request processed the latest response should
+  /// be merge with previous response data.
+  abstract covariant ResponseData? _mergedData;
+
+  /// Getter for merged response data.
+  ResponseData? get mergedData => _mergedData;
+
   /// Current or last called page number.
   int _page = 0;
 
   /// Getter for last called page number.
   int get page => _page;
 
-  /// Merged response data, after request processed the latest response should
-  /// be merge with previous response data.
-  abstract covariant ResponseData? _responseData;
-
-  /// Getter for merges response data.
-  ResponseData? get responseData => _responseData;
-
   /// The no more data flag. Used for preventing requests when there is no data
   /// left.
-  bool _isEmptyReturned = false;
+  bool _hasNextPage = true;
 
   /// Getter for no more data flag.
-  bool get isEmptyReturned => _isEmptyReturned;
+  bool get hasNextPage => _hasNextPage;
 
   /// Function for implementation of first load flag. Used for displaying
   /// loading only when first load.
-  bool get isFirstLoad;
+  bool _isFirstLoaded = true;
+
+  /// Getter for first load flag.
+  @visibleForTesting
+  bool get isFirstLoad => _isFirstLoaded;
+
+  /// Overrode [add] function from [Bloc]
+  ///
+  /// * A [StateError] will be thrown if non [PaginationReloadServiceRequested]
+  /// events is getting added when [_hasNextPage] is false.
+  @override
+  void add(PaginationServiceRequestedEvent event) {
+    if (event is! PaginationReloadServiceRequested && !_hasNextPage) {
+      final eventType = event.runtimeType;
+      throw StateError(
+        '''add($eventType) was called when hasNextPage is false.\n'''
+        '''Make sure to request next page when hasNextPage is true''',
+      );
+    }
+
+    super.add(event);
+  }
 
   /// Function for handling pagination reset flow logic.
   @override
   @mustCallSuper
   FutureOr<void> onPreRequest(
-      PaginationServiceRequestedEvent event, Emitter<ServiceState> emit) {
+      PaginationServiceRequestedEvent event, Emitter<ServiceState> emit) async {
     if (event is PaginationReloadServiceRequested) {
-      onPreRequestReset();
+      onPreRequestResetData();
+    } else {
+      if (!_isFirstLoaded) {
+        _page = updateNextPageNumber(_page, _mergedData);
+      }
     }
 
     return super.onPreRequest(event, emit);
@@ -66,7 +91,12 @@ abstract class PaginationServiceBloc<
 
   /// Function for implementation of resetting bloc fields when event is
   /// [PaginationReloadServiceRequested]
-  FutureOr<void> onPreRequestReset();
+  FutureOr<void> onPreRequestResetData();
+
+  /// Function for implementation of updating next page number. All page update
+  /// must be implement within this function.
+  int updateNextPageNumber(
+      int previousPageNumber, covariant ResponseData? responseData);
 
   /// Function for handling pagination request flow logic.
   @override
@@ -75,21 +105,14 @@ abstract class PaginationServiceBloc<
       PaginationServiceRequestedEvent event, Emitter<ServiceState> emit) async {
     try {
       final responseData = await onPaginationRequest(event, page);
-      if (await isEmptyPage(responseData)) {
-        _isEmptyReturned = true;
-        _responseData ??= responseData;
-        emit(ServiceLoadSuccess<PaginationServiceRequestedEvent, ResponseData>(
-            event: event, data: _responseData ?? responseData));
-        return;
-      }
+      _isFirstLoaded = false;
+      _hasNextPage = await updateHasNextPage(responseData);
 
-      final processedResponseData =
-          await onProcessResponseData(_responseData, responseData);
-      _responseData = processedResponseData;
-      _page += 1;
+      final mergedData = await onMergingResponseData(_mergedData, responseData);
+      _mergedData = mergedData;
 
       emit(ServiceLoadSuccess<PaginationServiceRequestedEvent, ResponseData>(
-          event: event, data: processedResponseData));
+          event: event, data: mergedData));
     } catch (error) {
       emit(ServiceLoadFailure<PaginationServiceRequestedEvent>(
           event: event, error: error));
@@ -101,13 +124,13 @@ abstract class PaginationServiceBloc<
   FutureOr<ResponseData> onPaginationRequest(
       PaginationServiceRequestedEvent event, int page);
 
-  /// Function for implementation of determinate is empty page (aka. no more data)
-  /// when [onPaginationRequest] receiving [ResponseData].
-  FutureOr<bool> isEmptyPage(ResponseData responseData);
+  /// Function for implementation of determinate has next page when
+  /// [onPaginationRequest] receiving [ResponseData].
+  FutureOr<bool> updateHasNextPage(ResponseData responseData);
 
-  /// Function for implementation of processing response data. All data merging
+  /// Function for implementation of merging response data. All data merging
   /// must be implement within this function.
-  FutureOr<ResponseData> onProcessResponseData(
+  FutureOr<ResponseData> onMergingResponseData(
       covariant ResponseData? previousResponseData, ResponseData responseData);
 }
 
@@ -138,38 +161,42 @@ abstract class PaginationListServiceBloc<
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
   }) : super(eventTransformer: eventTransformer);
 
-  /// Merges response data override with default empty list.
+  /// Merged response data override with default empty list.
   @override
-  List<ResponseData> _responseData = [];
+  List<ResponseData> _mergedData = [];
 
-  /// Getter for merges response data.
+  /// Getter for merged response data.
   @override
-  List<ResponseData> get responseData => _responseData;
-
-  /// The first load flag. Used for displaying loading only when first load.
-  @override
-  bool get isFirstLoad => responseData.isEmpty;
+  List<ResponseData> get mergedData => _mergedData;
 
   /// Function for resetting bloc fields when event is
   /// [PaginationReloadServiceRequested]
   @override
-  FutureOr<void> onPreRequestReset() {
+  @mustCallSuper
+  FutureOr<void> onPreRequestResetData() {
     _page = 0;
-    _responseData = [];
-    _isEmptyReturned = false;
+    _mergedData = [];
+    _hasNextPage = true;
+    _isFirstLoaded = true;
   }
 
-  /// Function for determinate is empty page (aka. no more data)
-  /// when [onPaginationRequest] receiving [ResponseData].
   @override
-  FutureOr<bool> isEmptyPage(List<ResponseData> responseData) {
-    return responseData.isEmpty;
+  int updateNextPageNumber(
+      int previousPageNumber, List<ResponseData> responseData) {
+    return previousPageNumber + 1;
+  }
+
+  /// Function for determinate has next page when [onPaginationRequest]
+  /// receiving [ResponseData].
+  @override
+  FutureOr<bool> updateHasNextPage(List<ResponseData> responseData) {
+    return responseData.isNotEmpty;
   }
 
   /// Function for processing response data. All data merging must be implement
   /// within this function.
   @override
-  FutureOr<List<ResponseData>> onProcessResponseData(
+  FutureOr<List<ResponseData>> onMergingResponseData(
       List<ResponseData> previousResponseData,
       List<ResponseData> responseData) {
     return previousResponseData.toList()..addAll(responseData);
@@ -202,24 +229,28 @@ abstract class PaginationObjectServiceBloc<
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
   }) : super(eventTransformer: eventTransformer);
 
-  /// Merges response data override with default null.
+  /// Merged response data override with default null.
   @override
-  ResponseData? _responseData;
+  ResponseData? _mergedData;
 
-  /// Getter for merges response data.
+  /// Getter for merged response data.
   @override
-  ResponseData? get responseData => _responseData;
-
-  /// The first load flag. Used for displaying loading only when first load.
-  @override
-  bool get isFirstLoad => responseData == null;
+  ResponseData? get mergedData => _mergedData;
 
   /// Function for processing response data. All data merging must be implement
   /// within this function.
   @override
-  FutureOr<void> onPreRequestReset() {
+  @mustCallSuper
+  FutureOr<void> onPreRequestResetData() {
     _page = 0;
-    _responseData = null;
-    _isEmptyReturned = false;
+    _mergedData = null;
+    _hasNextPage = true;
+    _isFirstLoaded = true;
+  }
+
+  @override
+  int updateNextPageNumber(
+      int previousPageNumber, covariant ResponseData? responseData) {
+    return previousPageNumber + 1;
   }
 }

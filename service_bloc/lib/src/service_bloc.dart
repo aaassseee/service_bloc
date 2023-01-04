@@ -6,7 +6,6 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 part 'service_event.dart';
-
 part 'service_state.dart';
 
 /// Base class for service calling implement with bloc architecture.
@@ -32,7 +31,7 @@ abstract class ServiceBloc<ServiceRequestedEvent extends ServiceRequested,
     );
   }
 
-  /// Quick shortcut for getting data if state is now [ServiceLoadSuccess].
+  /// Quick shortcut for getting response data if state is [ServiceLoadSuccess].
   /// Otherwise, return null.
   ResponseData? get data {
     final state = this.state;

@@ -130,6 +130,10 @@ void main() {
       final serviceBloc = SamplePaginationListServiceBloc();
       expect(serviceBloc.data, null);
       expect(serviceBloc.hasData, false);
+      expect(serviceBloc.mergedData, []);
+      expect(serviceBloc.page, 0);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, true);
     });
 
     test('pagination list service bloc data', () async {
@@ -138,6 +142,11 @@ void main() {
       serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData, []);
+          expect(serviceBloc.page, 0);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, true);
           continue;
         }
@@ -153,13 +162,20 @@ void main() {
       }
       expect(serviceBloc.data, firstPageResponse);
       expect(serviceBloc.hasData, true);
-      expect(serviceBloc.responseData, firstPageResponse);
-      expect(serviceBloc.isEmptyReturned, false);
+      expect(serviceBloc.mergedData, firstPageResponse);
+      expect(serviceBloc.page, 0);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, false);
 
       // page 1
       serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData, firstPageResponse);
+          expect(serviceBloc.page, 1);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, false);
           continue;
         }
@@ -181,16 +197,26 @@ void main() {
         ...secondPageResponse,
       ]);
       expect(serviceBloc.hasData, true);
-      expect(serviceBloc.responseData, [
+      expect(serviceBloc.mergedData, [
         ...firstPageResponse,
         ...secondPageResponse,
       ]);
-      expect(serviceBloc.isEmptyReturned, false);
+      expect(serviceBloc.page, 1);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, false);
 
-      // page 2
+      // page 2 (empty array)
       serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData, [
+            ...firstPageResponse,
+            ...secondPageResponse,
+          ]);
+          expect(serviceBloc.page, 2);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, false);
           continue;
         }
@@ -212,17 +238,28 @@ void main() {
         ...secondPageResponse,
       ]);
       expect(serviceBloc.hasData, true);
-      expect(serviceBloc.responseData, [
+      expect(serviceBloc.mergedData, [
         ...firstPageResponse,
         ...secondPageResponse,
       ]);
-      expect(serviceBloc.isEmptyReturned, true);
+      expect(serviceBloc.page, 2);
+      expect(serviceBloc.hasNextPage, false);
+      expect(serviceBloc.isFirstLoad, false);
 
+      expect(
+          () => serviceBloc
+              .add(const SampleServicePaginationSuccessRequested('param')),
+          throwsStateError);
       // reload
       serviceBloc.add(const SampleServicePaginationReloadRequested('param'));
 
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData, []);
+          expect(serviceBloc.page, 0);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, true);
           continue;
         }
@@ -233,8 +270,10 @@ void main() {
       }
       expect(serviceBloc.data, firstPageResponse);
       expect(serviceBloc.hasData, true);
-      expect(serviceBloc.responseData, firstPageResponse);
-      expect(serviceBloc.isEmptyReturned, false);
+      expect(serviceBloc.mergedData, firstPageResponse);
+      expect(serviceBloc.page, 0);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, false);
     });
 
     blocTest<SamplePaginationListServiceBloc, ServiceState>(
@@ -267,14 +306,18 @@ void main() {
 
   group('pagination object service bloc', () {
     test('pagination object service bloc initial state', () {
-      final serviceBloc = SamplePaginationListServiceBloc();
+      final serviceBloc = SamplePaginationObjectServiceBloc();
       expect(serviceBloc.state, ServiceInitial());
     });
 
     test('pagination object service bloc initial data', () {
-      final serviceBloc = SamplePaginationListServiceBloc();
+      final serviceBloc = SamplePaginationObjectServiceBloc();
       expect(serviceBloc.data, null);
       expect(serviceBloc.hasData, false);
+      expect(serviceBloc.mergedData, null);
+      expect(serviceBloc.page, 0);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, true);
     });
 
     test('pagination object service bloc data', () async {
@@ -283,6 +326,11 @@ void main() {
       serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData, null);
+          expect(serviceBloc.page, 0);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, true);
           continue;
         }
@@ -299,14 +347,22 @@ void main() {
       expect(
           serviceBloc.data, SampleObject(firstPageResponse, firstPageResponse));
       expect(serviceBloc.hasData, true);
-      expect(serviceBloc.responseData,
+      expect(serviceBloc.mergedData,
           SampleObject(firstPageResponse, firstPageResponse));
-      expect(serviceBloc.isEmptyReturned, false);
+      expect(serviceBloc.page, 0);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, false);
 
       // page 1
       serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData,
+              SampleObject(firstPageResponse, firstPageResponse));
+          expect(serviceBloc.page, 1);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, false);
           continue;
         }
@@ -337,7 +393,7 @@ void main() {
           ]));
       expect(serviceBloc.hasData, true);
       expect(
-          serviceBloc.responseData,
+          serviceBloc.mergedData,
           SampleObject([
             ...firstPageResponse,
             ...secondPageResponse,
@@ -345,12 +401,27 @@ void main() {
             ...firstPageResponse,
             ...secondPageResponse,
           ]));
-      expect(serviceBloc.isEmptyReturned, false);
+      expect(serviceBloc.page, 1);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, false);
 
       // page 2
       serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(
+              serviceBloc.mergedData,
+              SampleObject([
+                ...firstPageResponse,
+                ...secondPageResponse,
+              ], [
+                ...firstPageResponse,
+                ...secondPageResponse,
+              ]));
+          expect(serviceBloc.page, 2);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, false);
           continue;
         }
@@ -381,7 +452,7 @@ void main() {
           ]));
       expect(serviceBloc.hasData, true);
       expect(
-          serviceBloc.responseData,
+          serviceBloc.mergedData,
           SampleObject([
             ...firstPageResponse,
             ...secondPageResponse,
@@ -389,13 +460,24 @@ void main() {
             ...firstPageResponse,
             ...secondPageResponse,
           ]));
-      expect(serviceBloc.isEmptyReturned, true);
+      expect(serviceBloc.page, 2);
+      expect(serviceBloc.hasNextPage, false);
+      expect(serviceBloc.isFirstLoad, false);
 
+      expect(
+          () => serviceBloc
+              .add(const SampleServicePaginationSuccessRequested('param')),
+          throwsStateError);
       // reload
       serviceBloc.add(const SampleServicePaginationReloadRequested('param'));
 
       await for (final state in serviceBloc.stream) {
         if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.data, null);
+          expect(serviceBloc.hasData, false);
+          expect(serviceBloc.mergedData, null);
+          expect(serviceBloc.page, 0);
+          expect(serviceBloc.hasNextPage, true);
           expect(serviceBloc.isFirstLoad, true);
           continue;
         }
@@ -407,9 +489,11 @@ void main() {
       expect(
           serviceBloc.data, SampleObject(firstPageResponse, firstPageResponse));
       expect(serviceBloc.hasData, true);
-      expect(serviceBloc.responseData,
+      expect(serviceBloc.mergedData,
           SampleObject(firstPageResponse, firstPageResponse));
-      expect(serviceBloc.isEmptyReturned, false);
+      expect(serviceBloc.page, 0);
+      expect(serviceBloc.hasNextPage, true);
+      expect(serviceBloc.isFirstLoad, false);
     });
 
     blocTest<SamplePaginationObjectServiceBloc, ServiceState>(
@@ -573,8 +657,8 @@ class SampleObject extends Equatable {
 class SamplePaginationObjectServiceBloc extends PaginationObjectServiceBloc<
     SampleServicePaginationRequestedBase, SampleObject> {
   @override
-  FutureOr<bool> isEmptyPage(SampleObject responseData) {
-    return responseData.data1.isEmpty && responseData.data2.isEmpty;
+  FutureOr<bool> updateHasNextPage(SampleObject responseData) {
+    return responseData.data1.isNotEmpty || responseData.data2.isNotEmpty;
   }
 
   @override
@@ -609,7 +693,7 @@ class SamplePaginationObjectServiceBloc extends PaginationObjectServiceBloc<
   }
 
   @override
-  FutureOr<SampleObject> onProcessResponseData(
+  FutureOr<SampleObject> onMergingResponseData(
       covariant SampleObject? previousResponseData, SampleObject responseData) {
     if (previousResponseData == null) {
       return responseData;
