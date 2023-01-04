@@ -4,16 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_service_bloc/flutter_service_bloc.dart';
 
-class OpenLibraryHomePage extends StatefulWidget {
-  static const routeName = '/openLibrary';
+class OpenLibraryAuthorSearchPage extends StatefulWidget {
+  static const routeName = '/openLibraryAuthorSearch';
 
-  const OpenLibraryHomePage({Key? key}) : super(key: key);
+  const OpenLibraryAuthorSearchPage({Key? key}) : super(key: key);
 
   @override
-  State<OpenLibraryHomePage> createState() => _OpenLibraryHomePageState();
+  State<OpenLibraryAuthorSearchPage> createState() =>
+      _OpenLibraryAuthorSearchPageState();
 }
 
-class _OpenLibraryHomePageState extends State<OpenLibraryHomePage> {
+class _OpenLibraryAuthorSearchPageState
+    extends State<OpenLibraryAuthorSearchPage> {
+  // using the [form_bloc] library you can skip the annoying form creation in page
   late final TextEditingController _textEditingController;
   late final ScrollController _scrollController;
 
@@ -24,6 +27,7 @@ class _OpenLibraryHomePageState extends State<OpenLibraryHomePage> {
 
     _textEditingController = TextEditingController();
     _textEditingController.addListener(() {
+      // add debounce if you want
       serviceBloc.add(OpenLibraryAuthorSearchReloadServiceRequested(
           _textEditingController.text));
     });
@@ -49,7 +53,26 @@ class _OpenLibraryHomePageState extends State<OpenLibraryHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Author Search'),
+        actions: [
+          ServiceBlocBuilder<
+              OpenLibraryAuthorSearchServiceBloc,
+              OpenLibraryAuthorSearchServiceRequested,
+              List<OpenLibraryAuthorSearchResult>>(
+            onLoading: (context, state, event) => const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            onSucceed: (context, state, event, response) => const SizedBox(),
+            onFailed: (context, state, event, error) => const SizedBox(),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -66,17 +89,22 @@ class _OpenLibraryHomePageState extends State<OpenLibraryHomePage> {
                   OpenLibraryAuthorSearchServiceBloc,
                   OpenLibraryAuthorSearchServiceRequested,
                   List<OpenLibraryAuthorSearchResult>>(
-                onSucceed: (context, state, event, response) =>
-                    ListView.builder(
-                  controller: _scrollController,
-                  itemBuilder: (context, index) {
-                    final searchResult = response[index];
-                    return ListTile(
-                      title: Text(searchResult.name),
-                    );
-                  },
-                  itemCount: response.length,
-                ),
+                onSucceed: (context, state, event, response) {
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemBuilder: (context, index) {
+                      final author = response[index];
+                      return ListTile(
+                        title: Text(author.name),
+                        onTap: () => Navigator.of(context).pushNamed(
+                            OpenLibraryAuthorDetailPage.routeName,
+                            arguments: OpenLibraryAuthorDetailPageParameter(
+                                key: author.key, name: author.name)),
+                      );
+                    },
+                    itemCount: response.length,
+                  );
+                },
               ),
             ),
           ],

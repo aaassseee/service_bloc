@@ -122,9 +122,6 @@ class _$OpenLibraryAuthorSearchResultSerializer
       serializers.serialize(object.alternateNameList,
           specifiedType:
               const FullType(BuiltList, const [const FullType(String)])),
-      'top_work',
-      serializers.serialize(object.topWork,
-          specifiedType: const FullType(String)),
       'work_count',
       serializers.serialize(object.workCount,
           specifiedType: const FullType(int)),
@@ -138,6 +135,13 @@ class _$OpenLibraryAuthorSearchResultSerializer
     if (value != null) {
       result
         ..add('birth_date')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
+    value = object.topWork;
+    if (value != null) {
+      result
+        ..add('top_work')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
@@ -180,7 +184,7 @@ class _$OpenLibraryAuthorSearchResultSerializer
           break;
         case 'top_work':
           result.topWork = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'work_count':
           result.workCount = serializers.deserialize(value,
@@ -477,7 +481,7 @@ class _$OpenLibraryAuthorSearchResult extends OpenLibraryAuthorSearchResult {
   @override
   final String? birthDate;
   @override
-  final String topWork;
+  final String? topWork;
   @override
   final int workCount;
   @override
@@ -493,7 +497,7 @@ class _$OpenLibraryAuthorSearchResult extends OpenLibraryAuthorSearchResult {
       required this.name,
       required this.alternateNameList,
       this.birthDate,
-      required this.topWork,
+      this.topWork,
       required this.workCount,
       required this.topSubjectList})
       : super._() {
@@ -505,8 +509,6 @@ class _$OpenLibraryAuthorSearchResult extends OpenLibraryAuthorSearchResult {
         name, r'OpenLibraryAuthorSearchResult', 'name');
     BuiltValueNullFieldError.checkNotNull(alternateNameList,
         r'OpenLibraryAuthorSearchResult', 'alternateNameList');
-    BuiltValueNullFieldError.checkNotNull(
-        topWork, r'OpenLibraryAuthorSearchResult', 'topWork');
     BuiltValueNullFieldError.checkNotNull(
         workCount, r'OpenLibraryAuthorSearchResult', 'workCount');
     BuiltValueNullFieldError.checkNotNull(
@@ -654,8 +656,7 @@ class OpenLibraryAuthorSearchResultBuilder
                   name, r'OpenLibraryAuthorSearchResult', 'name'),
               alternateNameList: alternateNameList.build(),
               birthDate: birthDate,
-              topWork: BuiltValueNullFieldError.checkNotNull(
-                  topWork, r'OpenLibraryAuthorSearchResult', 'topWork'),
+              topWork: topWork,
               workCount: BuiltValueNullFieldError.checkNotNull(
                   workCount, r'OpenLibraryAuthorSearchResult', 'workCount'),
               topSubjectList: topSubjectList.build());

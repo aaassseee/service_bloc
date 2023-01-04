@@ -185,6 +185,7 @@ class _OpenLibraryAuthorSearchPageState
 
     _textEditingController = TextEditingController();
     _textEditingController.addListener(() {
+      // add debounce if you want
       serviceBloc.add(OpenLibraryAuthorSearchReloadServiceRequested(
           _textEditingController.text));
     });
@@ -210,7 +211,26 @@ class _OpenLibraryAuthorSearchPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Author Search')),
+      appBar: AppBar(
+        title: const Text('Author Search'),
+        actions: [
+          ServiceBlocBuilder<
+              OpenLibraryAuthorSearchServiceBloc,
+              OpenLibraryAuthorSearchServiceRequested,
+              List<OpenLibraryAuthorSearchResult>>(
+            onLoading: (context, state, event) => const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            onSucceed: (context, state, event, response) => const SizedBox(),
+            onFailed: (context, state, event, error) => const SizedBox(),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

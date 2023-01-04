@@ -76,7 +76,7 @@ abstract class OpenLibraryAuthorSearchResult
   String? get birthDate;
 
   @BuiltValueField(wireName: 'top_work')
-  String get topWork;
+  String? get topWork;
 
   @BuiltValueField(wireName: 'work_count')
   int get workCount;

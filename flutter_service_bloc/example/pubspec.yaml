@@ -31,13 +31,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  built_collection: ^5.1.1
+  built_value: ^8.4.2
   equatable: ^2.0.5
   flutter_bloc: ^8.1.1
-  built_value: ^8.4.2
-  built_collection: ^5.1.1
-  http: ^0.13.5
   flutter_service_bloc:
     path: ../../flutter_service_bloc
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:
