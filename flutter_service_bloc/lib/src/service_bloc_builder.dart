@@ -10,9 +10,9 @@ import 'package:service_bloc/service_bloc.dart';
 /// [onSuccess] is a required parameter so [buildWhen] will always return true if
 /// state is [ServiceLoadSuccess]
 class ServiceBlocBuilder<
-    Bloc extends ServiceBloc<ServiceRequestedEvent, Response>,
+    Bloc extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
     ServiceRequestedEvent extends ServiceRequested,
-    Response> extends BlocBuilder<Bloc, ServiceState> {
+    ResponseData> extends BlocBuilder<Bloc, ServiceState> {
   /// A constructor for creating a [ServiceBlocBuilder] with predefined state
   /// widget builder.
   ServiceBlocBuilder({
@@ -37,8 +37,8 @@ class ServiceBlocBuilder<
                   return onLoading != null;
                 }
 
-                if (current
-                    is ServiceLoadSuccess<ServiceRequestedEvent, Response>) {
+                if (current is ServiceLoadSuccess<ServiceRequestedEvent,
+                    ResponseData>) {
                   return true;
                 }
 
@@ -63,7 +63,8 @@ class ServiceBlocBuilder<
               return onLoading(context, state, state.event);
             }
 
-            if (state is ServiceLoadSuccess<ServiceRequestedEvent, Response>) {
+            if (state
+                is ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>) {
               final data = state.data;
               if (data == null) {
                 return fallback;
@@ -107,9 +108,9 @@ class ServiceBlocBuilder<
   /// custom [buildWhen] is passed and current state is [ServiceLoadSuccess].
   final Widget Function(
       BuildContext context,
-      ServiceLoadSuccess<ServiceRequestedEvent, Response> state,
+      ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
       ServiceRequestedEvent event,
-      Response response) onSucceed;
+      ResponseData data) onSucceed;
 
   /// A widget builder which is only called when [buildWhen] is omitted or
   /// custom [buildWhen] is passed [onFailed] is not omitted and current state

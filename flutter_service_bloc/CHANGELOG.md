@@ -1,3 +1,8 @@
+## 1.0.0
+
+* update breaking
+  dependency [service_bloc](https://github.com/aaassseee/service_bloc/blob/main/service_bloc/CHANGELOG.md)
+
 ## 0.1.0
 
 * add documentation

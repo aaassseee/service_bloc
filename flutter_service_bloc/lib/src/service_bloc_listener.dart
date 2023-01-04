@@ -8,9 +8,9 @@ import 'package:service_bloc/service_bloc.dart';
 /// true when certain parameter is set. For example [onInitial] [onLoading]
 /// [onResponded] [onSucceed] [onFailed].
 class ServiceBlocListener<
-    Bloc extends ServiceBloc<ServiceRequestedEvent, Response>,
+    Bloc extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
     ServiceRequestedEvent extends ServiceRequested,
-    Response> extends BlocListener<Bloc, ServiceState> {
+    ResponseData> extends BlocListener<Bloc, ServiceState> {
   /// A constructor for creating a [ServiceBlocListener] with predefined state
   /// callback.
   ServiceBlocListener({
@@ -36,8 +36,8 @@ class ServiceBlocListener<
                   return onLoading != null;
                 }
 
-                if (current
-                    is ServiceLoadSuccess<ServiceRequestedEvent, Response>) {
+                if (current is ServiceLoadSuccess<ServiceRequestedEvent,
+                    ResponseData>) {
                   return onResponded != null || onSucceed != null;
                 }
 
@@ -68,7 +68,7 @@ class ServiceBlocListener<
               }
 
               if (state
-                  is ServiceLoadSuccess<ServiceRequestedEvent, Response>) {
+                  is ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>) {
                 final data = state.data;
                 if (onSucceed != null) {
                   onSucceed(context, state, state.event, data);
@@ -113,9 +113,9 @@ class ServiceBlocListener<
   /// [ServiceLoadSuccess].
   final Function(
       BuildContext context,
-      ServiceLoadSuccess<ServiceRequestedEvent, Response> state,
+      ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
       ServiceRequestedEvent event,
-      Response? response)? onSucceed;
+      ResponseData? data)? onSucceed;
 
   /// A function which is only called when [listenWhen] is omitted or custom
   /// [listenWhen] is passed and [onFailed] is not omitted and current state is
