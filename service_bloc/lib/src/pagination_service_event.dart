@@ -11,8 +11,4 @@ abstract class PaginationServiceRequested extends ServiceRequested {
 /// Base reload event for [PaginationServiceBloc]. Every reload event which is
 /// used in [PaginationServiceBloc] and including extended
 /// [PaginationServiceBloc] class must use this class as base event class.
-@immutable
-abstract class PaginationReloadServiceRequested
-    extends PaginationServiceRequested {
-  const PaginationReloadServiceRequested();
-}
+mixin PaginationReload on PaginationServiceRequested {}
