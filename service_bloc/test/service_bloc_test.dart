@@ -342,7 +342,7 @@ void main() {
           expect(
               state,
               ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                      SampleObject>(
+                      SampleObject?>(
                   event: SampleServicePaginationSuccessRequested('param'),
                   data: SampleObject(firstPageResponse, firstPageResponse)));
           break;
@@ -374,7 +374,7 @@ void main() {
           expect(
               state,
               ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                      SampleObject>(
+                      SampleObject?>(
                   event: SampleServicePaginationSuccessRequested('param'),
                   data: SampleObject([
                     ...firstPageResponse,
@@ -433,7 +433,7 @@ void main() {
           expect(
               state,
               ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                      SampleObject>(
+                      SampleObject?>(
                   event: SampleServicePaginationSuccessRequested('param'),
                   data: SampleObject([
                     ...firstPageResponse,
@@ -508,7 +508,7 @@ void main() {
           const ServiceLoadInProgress<SampleServicePaginationRequestedBase>(
               event: SampleServicePaginationSuccessRequested('param')),
           ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                  SampleObject>(
+                  SampleObject?>(
               event: SampleServicePaginationSuccessRequested('param'),
               data: SampleObject(firstPageResponse, firstPageResponse)),
         ],
@@ -752,7 +752,7 @@ void main() {
           expect(
               state,
               ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                      SampleObject>(
+                      SampleObject?>(
                   event: SampleServicePaginationSuccessRequested('param'),
                   data: SampleObject(firstPageResponse, firstPageResponse)));
           break;
@@ -784,7 +784,7 @@ void main() {
           expect(
               state,
               ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                      SampleObject>(
+                      SampleObject?>(
                   event: SampleServicePaginationSuccessRequested('param'),
                   data: SampleObject([
                     ...firstPageResponse,
@@ -843,7 +843,7 @@ void main() {
           expect(
               state,
               ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                      SampleObject>(
+                      SampleObject?>(
                   event: SampleServicePaginationSuccessRequested('param'),
                   data: SampleObject([
                     ...firstPageResponse,
@@ -917,7 +917,7 @@ void main() {
           const ServiceLoadInProgress<SampleServicePaginationRequestedBase>(
               event: SampleServicePaginationSuccessRequested('param')),
           ServiceLoadSuccess<SampleServicePaginationRequestedBase,
-                  SampleObject>(
+                  SampleObject?>(
               event: SampleServicePaginationSuccessRequested('param'),
               data: SampleObject(firstPageResponse, firstPageResponse)),
         ],
@@ -1068,7 +1068,10 @@ class SamplePageBasedPaginationListServiceBloc
 
 class SamplePageBasedPaginationObjectServiceBloc
     extends PageBasedPaginationObjectServiceBloc<
-        SampleServicePaginationRequestedBase, SampleObject> {
+        SampleServicePaginationRequestedBase, SampleObject?> {
+  SamplePageBasedPaginationObjectServiceBloc({SampleObject? initialData})
+      : super(initialData: initialData);
+
   @override
   FutureOr<bool> updateHasNextPage(SampleObject? responseData) {
     return responseData != null &&
@@ -1076,7 +1079,7 @@ class SamplePageBasedPaginationObjectServiceBloc
   }
 
   @override
-  FutureOr<SampleObject> onPaginationRequest(
+  FutureOr<SampleObject?> onPaginationRequest(
       SampleServicePaginationRequestedBase event, num page) {
     if (event is SampleServicePaginationSuccessRequested) {
       return onSampleServicePaginationSuccessRequested(event, page.toInt());
@@ -1089,7 +1092,7 @@ class SamplePageBasedPaginationObjectServiceBloc
     throw UnimplementedError();
   }
 
-  FutureOr<SampleObject> onSampleServicePaginationSuccessRequested(
+  FutureOr<SampleObject?> onSampleServicePaginationSuccessRequested(
       SampleServicePaginationSuccessRequested event, int page) {
     if (page == 2) {
       return SampleObject(const [], const []);
@@ -1101,16 +1104,20 @@ class SamplePageBasedPaginationObjectServiceBloc
     );
   }
 
-  FutureOr<SampleObject> onSampleServicePaginationFailureRequested(
+  FutureOr<SampleObject?> onSampleServicePaginationFailureRequested(
       SampleServicePaginationFailureRequested event, int page) {
     throw ServiceError();
   }
 
   @override
-  FutureOr<SampleObject> onMergingResponseData(
-      SampleObject? previousResponseData, SampleObject responseData) {
+  FutureOr<SampleObject?> onMergingResponseData(
+      SampleObject? previousResponseData, SampleObject? responseData) {
     if (previousResponseData == null) {
       return responseData;
+    }
+
+    if (responseData == null) {
+      return previousResponseData;
     }
 
     return SampleObject([...previousResponseData.data1, ...responseData.data1],
@@ -1160,7 +1167,10 @@ class SampleCursorBasedPaginationListServiceBloc
 
 class SampleCursorBasedPaginationObjectServiceBloc
     extends CursorBasedPaginationObjectServiceBloc<
-        SampleServicePaginationRequestedBase, SampleObject> {
+        SampleServicePaginationRequestedBase, SampleObject?> {
+  SampleCursorBasedPaginationObjectServiceBloc({SampleObject? initialData})
+      : super(initialData: initialData);
+
   @override
   FutureOr<bool> updateHasNextPage(SampleObject? responseData) {
     return responseData != null &&
@@ -1168,7 +1178,7 @@ class SampleCursorBasedPaginationObjectServiceBloc
   }
 
   @override
-  FutureOr<SampleObject> onPaginationRequest(
+  FutureOr<SampleObject?> onPaginationRequest(
       SampleServicePaginationRequestedBase event, String? page) {
     if (event is SampleServicePaginationSuccessRequested) {
       return onSampleServicePaginationSuccessRequested(event, page);
@@ -1181,7 +1191,7 @@ class SampleCursorBasedPaginationObjectServiceBloc
     throw UnimplementedError();
   }
 
-  FutureOr<SampleObject> onSampleServicePaginationSuccessRequested(
+  FutureOr<SampleObject?> onSampleServicePaginationSuccessRequested(
       SampleServicePaginationSuccessRequested event, String? page) {
     final integerPage = int.tryParse(page ?? '0') ?? 0;
     if (integerPage == 2) {
@@ -1194,16 +1204,20 @@ class SampleCursorBasedPaginationObjectServiceBloc
     );
   }
 
-  FutureOr<SampleObject> onSampleServicePaginationFailureRequested(
+  FutureOr<SampleObject?> onSampleServicePaginationFailureRequested(
       SampleServicePaginationFailureRequested event, String? page) {
     throw ServiceError();
   }
 
   @override
-  FutureOr<SampleObject> onMergingResponseData(
-      SampleObject? previousResponseData, SampleObject responseData) {
+  FutureOr<SampleObject?> onMergingResponseData(
+      SampleObject? previousResponseData, SampleObject? responseData) {
     if (previousResponseData == null) {
       return responseData;
+    }
+
+    if (responseData == null) {
+      return previousResponseData;
     }
 
     return SampleObject([...previousResponseData.data1, ...responseData.data1],

@@ -7,6 +7,8 @@ import '../service_bloc.dart';
 
 part 'pagination_service_event.dart';
 
+abstract class PaginationType {}
+
 /// Base class for pagination service implement with bloc architecture.
 ///
 /// Each [PaginationServiceBloc] should create a unique event class extending
@@ -27,8 +29,10 @@ abstract class PaginationServiceBloc<
   /// for more detail.
   PaginationServiceBloc({
     required PageType initialPage,
+    required ResponseData initialData,
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
   })  : _page = initialPage,
+        _mergedData = initialData,
         super(eventTransformer: eventTransformer);
 
   /// Current page number / id for pagination service.
@@ -47,10 +51,10 @@ abstract class PaginationServiceBloc<
   /// Merged response data which is used for storing all response data. Every
   /// page response data should be merged with [_mergedData] within
   /// [onMergingResponseData].
-  abstract covariant ResponseData? _mergedData;
+  ResponseData _mergedData;
 
   /// Getter for merged response data.
-  ResponseData? get mergedData => _mergedData;
+  ResponseData get mergedData => _mergedData;
 
   /// Is first loaded boolean flag which is useful for page incrementation when
   /// [PaginationServiceRequested] is added.
@@ -110,12 +114,12 @@ abstract class PaginationServiceBloc<
 
   /// Function for implementation of resetting [_mergedData] when event is
   /// [PaginationReloadServiceRequested]
-  ResponseData? onReloadResetData();
+  ResponseData onReloadResetData();
 
   /// Function for implementation of increment page number before second
   /// request. Page increment must be done within this function.
   PageType incrementPageNumber(
-      PageType previousPage, covariant ResponseData? responseData);
+      PageType previousPage, ResponseData responseData);
 
   /// Function for handling pagination request.
   @override
@@ -150,7 +154,7 @@ abstract class PaginationServiceBloc<
   /// Function for implementation of merging response data. All data merging
   /// must be done within this function.
   FutureOr<ResponseData> onMergingResponseData(
-      covariant ResponseData? previousResponseData, ResponseData responseData);
+      ResponseData previousResponseData, ResponseData responseData);
 }
 
 /// Base class for pagination list service implement with bloc architecture.
@@ -179,16 +183,12 @@ abstract class PaginationListServiceBloc<
   /// for more detail.
   PaginationListServiceBloc({
     required PageType initialPage,
+    List<ResponseData> initialData = const [],
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
-
-  /// Merged response data override with default empty list.
-  @override
-  List<ResponseData> _mergedData = [];
-
-  /// Getter for merged response data.
-  @override
-  List<ResponseData> get mergedData => _mergedData;
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for resetting [_mergedData] when event is
   /// [PaginationReloadServiceRequested]
@@ -208,7 +208,8 @@ abstract class PaginationListServiceBloc<
   FutureOr<List<ResponseData>> onMergingResponseData(
       List<ResponseData> previousResponseData,
       List<ResponseData> responseData) {
-    return previousResponseData.toList()..addAll(responseData);
+    return previousResponseData.cast<ResponseData>().toList()
+      ..addAll(responseData);
   }
 }
 
@@ -236,17 +237,12 @@ abstract class PaginationObjectServiceBloc<
   /// for more detail.
   PaginationObjectServiceBloc({
     required PageType initialPage,
+    required ResponseData initialData,
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
-
-  /// Merged response data override with default null.
-  @override
-  ResponseData? _mergedData;
-
-  /// Function for resetting [_mergedData] when event is
-  /// [PaginationReloadServiceRequested]
-  @override
-  ResponseData? onReloadResetData() => null;
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 }
 
 /// Base class for number based pagination list service implement with bloc
@@ -275,8 +271,12 @@ abstract class NumberBasedPaginationListServiceBloc<
   /// for more detail.
   NumberBasedPaginationListServiceBloc({
     num initialPage = 0,
+    List<ResponseData> initialData = const [],
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for resetting [_page] when event is
   /// [PaginationReloadServiceRequested].
@@ -307,8 +307,12 @@ abstract class NumberBasedPaginationObjectServiceBloc<
   /// for more detail.
   NumberBasedPaginationObjectServiceBloc({
     num initialPage = 0,
+    required ResponseData initialData,
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for resetting [_page] when event is
   /// [PaginationReloadServiceRequested].
@@ -342,8 +346,12 @@ abstract class PageBasedPaginationListServiceBloc<
   /// for more detail.
   PageBasedPaginationListServiceBloc({
     int initialPage = 0,
+    List<ResponseData> initialData = const [],
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for increment page number before second request. Page increment
   /// must be done within this function.
@@ -377,8 +385,12 @@ abstract class PageBasedPaginationObjectServiceBloc<
   /// for more detail.
   PageBasedPaginationObjectServiceBloc({
     num initialPage = 0,
+    required ResponseData initialData,
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for increment page number before second request. Page increment
   /// must be done within this function.
@@ -415,8 +427,12 @@ abstract class CursorBasedPaginationListServiceBloc<
   /// for more detail.
   CursorBasedPaginationListServiceBloc({
     String? initialPage,
+    List<ResponseData> initialData = const [],
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for resetting [_page] when event is
   /// [PaginationReloadServiceRequested].
@@ -447,8 +463,12 @@ abstract class CursorBasedPaginationObjectServiceBloc<
   /// for more detail.
   CursorBasedPaginationObjectServiceBloc({
     String? initialPage,
+    required ResponseData initialData,
     EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(initialPage: initialPage, eventTransformer: eventTransformer);
+  }) : super(
+            initialPage: initialPage,
+            initialData: initialData,
+            eventTransformer: eventTransformer);
 
   /// Function for resetting [_page] when event is
   /// [PaginationReloadServiceRequested].
