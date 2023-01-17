@@ -8,7 +8,6 @@ abstract class PaginationServiceRequested extends ServiceRequested {
   const PaginationServiceRequested();
 }
 
-/// Base reload event for [PaginationServiceBloc]. Every reload event which is
-/// used in [PaginationServiceBloc] and including extended
-/// [PaginationServiceBloc] class must use this class as base event class.
+/// mixin class for only [PaginationServiceRequested] which allows
+/// [PaginationServiceRequested] having a reload action before service request.
 mixin PaginationReload on PaginationServiceRequested {}
