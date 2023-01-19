@@ -111,22 +111,23 @@ class OpenLibraryAuthorSearchServiceRequested
 }
 
 class OpenLibraryAuthorSearchReloadServiceRequested
-    extends OpenLibraryAuthorSearchServiceRequested
-    implements PaginationReloadServiceRequested {
-  const OpenLibraryAuthorSearchReloadServiceRequested(super.keyword);
+    extends OpenLibraryAuthorSearchServiceRequested with PaginationReload {
+  OpenLibraryAuthorSearchReloadServiceRequested(super.keyword);
 }
 
-class OpenLibraryAuthorSearchServiceBloc extends PaginationListServiceBloc<
-    OpenLibraryAuthorSearchServiceRequested, OpenLibraryAuthorSearchResult> {
+class OpenLibraryAuthorSearchServiceBloc
+    extends PageBasedPaginationListServiceBloc<
+        OpenLibraryAuthorSearchServiceRequested,
+        OpenLibraryAuthorSearchResult> {
   OpenLibraryAuthorSearchServiceBloc(this.repository);
 
   final OpenLibraryRepository repository;
 
   @override
   FutureOr<List<OpenLibraryAuthorSearchResult>> onPaginationRequest(
-      OpenLibraryAuthorSearchServiceRequested event, int page) async {
-    final response =
-        await repository.searchAuthor(keyword: event.keyword, pageNo: page);
+      OpenLibraryAuthorSearchServiceRequested event, num page) async {
+    final response = await repository.searchAuthor(
+        keyword: event.keyword, pageNo: page.toInt());
     return response.toList();
   }
 }
@@ -226,8 +227,8 @@ class _OpenLibraryAuthorSearchPageState
                 ),
               ),
             ),
-            onSucceed: (context, state, event, response) => const SizedBox(),
-            onFailed: (context, state, event, error) => const SizedBox(),
+            onSuccess: (context, state, event, response) => const SizedBox(),
+            onFailure: (context, state, event, error) => const SizedBox(),
           ),
         ],
       ),
@@ -247,7 +248,7 @@ class _OpenLibraryAuthorSearchPageState
                   OpenLibraryAuthorSearchServiceBloc,
                   OpenLibraryAuthorSearchServiceRequested,
                   List<OpenLibraryAuthorSearchResult>>(
-                onSucceed: (context, state, event, response) {
+                onSuccess: (context, state, event, response) {
                   return ListView.builder(
                     controller: _scrollController,
                     itemBuilder: (context, index) {
@@ -304,7 +305,7 @@ class OpenLibraryAuthorDetailPage extends StatelessWidget {
             OpenLibraryAuthorDetailServiceRequested, OpenLibraryAuthorDetail>(
           onLoading: (context, state, event) =>
               const Center(child: CircularProgressIndicator()),
-          onSucceed: (context, state, event, response) {
+          onSuccess: (context, state, event, response) {
             return ListView(
               children: [
                 if (response.photoIdList.isNotEmpty) ...[

@@ -6,7 +6,7 @@ import 'package:service_bloc/service_bloc.dart';
 /// [ServiceBlocBuilder] handles building a widget in response to relative state.
 ///
 /// If parameter [buildWhen] is omitted, default [buildWhen] will only return true
-/// when certain parameter is set. For example [onInitial] [onLoading] [onFailed].
+/// when certain parameter is set. For example [onInitial] [onLoading] [onFailure].
 /// [onSuccess] is a required parameter so [buildWhen] will always return true if
 /// state is [ServiceLoadSuccess]
 class ServiceBlocBuilder<
@@ -21,8 +21,8 @@ class ServiceBlocBuilder<
     BlocBuilderCondition? buildWhen,
     this.onInitial,
     this.onLoading,
-    required this.onSucceed,
-    this.onFailed,
+    required this.onSuccess,
+    this.onFailure,
     this.fallback = const SizedBox(),
   }) : super(
           key: key,
@@ -43,7 +43,7 @@ class ServiceBlocBuilder<
                 }
 
                 if (current is ServiceLoadFailure<ServiceRequestedEvent>) {
-                  return onFailed != null;
+                  return onFailure != null;
                 }
 
                 return false;
@@ -70,14 +70,14 @@ class ServiceBlocBuilder<
                 return fallback;
               }
 
-              return onSucceed(context, state, state.event, data);
+              return onSuccess(context, state, state.event, data);
             }
 
             if (state is ServiceLoadFailure<ServiceRequestedEvent>) {
-              if (onFailed == null) {
+              if (onFailure == null) {
                 return fallback;
               }
-              return onFailed(context, state, state.event, state.error);
+              return onFailure(context, state, state.event, state.error);
             }
 
             return fallback;
@@ -110,10 +110,10 @@ class ServiceBlocBuilder<
       BuildContext context,
       ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
       ServiceRequestedEvent event,
-      ResponseData data) onSucceed;
+      ResponseData data) onSuccess;
 
   /// A widget builder which is only called when [buildWhen] is omitted or
-  /// custom [buildWhen] is passed [onFailed] is not omitted and current state
+  /// custom [buildWhen] is passed [onFailure] is not omitted and current state
   /// is [ServiceLoadFailure].
   ///
   /// Otherwise, layout would not update when state is [ServiceLoadFailure],
@@ -122,7 +122,7 @@ class ServiceBlocBuilder<
       BuildContext context,
       ServiceLoadFailure<ServiceRequestedEvent> state,
       ServiceRequestedEvent event,
-      dynamic error)? onFailed;
+      dynamic error)? onFailure;
 
   /// A fallback widget for [builder] to use when build on first time or
   /// [buildWhen] got passed but widget builder function is omitted.

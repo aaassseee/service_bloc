@@ -1,5 +1,6 @@
-import 'package:example/main.dart';
+import 'package:example/open_library/bloc/service_bloc.dart';
 import 'package:example/open_library/modal/modal.dart';
+import 'package:example/open_library/view/open_library_author_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_service_bloc/flutter_service_bloc.dart';
@@ -68,8 +69,8 @@ class _OpenLibraryAuthorSearchPageState
                 ),
               ),
             ),
-            onSucceed: (context, state, event, response) => const SizedBox(),
-            onFailed: (context, state, event, error) => const SizedBox(),
+            onSuccess: (context, state, event, response) => const SizedBox(),
+            onFailure: (context, state, event, error) => const SizedBox(),
           ),
         ],
       ),
@@ -89,11 +90,11 @@ class _OpenLibraryAuthorSearchPageState
                   OpenLibraryAuthorSearchServiceBloc,
                   OpenLibraryAuthorSearchServiceRequested,
                   List<OpenLibraryAuthorSearchResult>>(
-                onSucceed: (context, state, event, response) {
+                onSuccess: (context, state, event, data) {
                   return ListView.builder(
                     controller: _scrollController,
                     itemBuilder: (context, index) {
-                      final author = response[index];
+                      final author = data[index];
                       return ListTile(
                         title: Text(author.name),
                         onTap: () => Navigator.of(context).pushNamed(
@@ -102,7 +103,7 @@ class _OpenLibraryAuthorSearchPageState
                                 key: author.key, name: author.name)),
                       );
                     },
-                    itemCount: response.length,
+                    itemCount: data.length,
                   );
                 },
               ),

@@ -1,6 +1,6 @@
 name: flutter_service_bloc
 description: Flutter package for service layer implement with bloc architecture
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/aaassseee/service_bloc
 repository: https://github.com/aaassseee/service_bloc/tree/main/flutter_service_bloc
 issue_tracker: https://github.com/aaassseee/service_bloc/issues
@@ -15,9 +15,12 @@ dependencies:
   flutter_bloc: '>=8.0.0 <9.0.0'
 #  service_bloc:
 #    path: ../service_bloc
-  service_bloc: '>=1.0.0 <2.0.0'
+  service_bloc: '>=2.0.0 <3.0.0'
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  bloc_test: ^9.1.0
+  equatable: ^2.0.5
   flutter_lints: ^2.0.0
+  mocktail: ^0.3.0

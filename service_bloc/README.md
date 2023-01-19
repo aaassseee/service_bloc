@@ -4,11 +4,9 @@ Dart package for service layer implement with bloc architecture
 
 ## Usage
 
-Create your own base service bloc
+Create your own base service bloc to reduce redundant code, for example:
 
-### Example
-
-- User permission
+- User permission (bloc level)
 
 ```dart
 enum UserPermissionLevel {
@@ -25,8 +23,9 @@ class UserPermissionLevelCubit extends Cubit<UserPermissionLevel> {
 abstract class UserPermissionRequiredServiceBloc<
 ServiceRequestedEvent extends ServiceRequested,
 ResponseData> extends ServiceBloc<ServiceRequestedEvent, ResponseData> {
-  UserPermissionRequiredServiceBloc({required this.userPermissionLevelCubit,
-    EventTransformer<ServiceRequestedEvent>? eventTransformer})
+  UserPermissionRequiredServiceBloc(
+      {required this.userPermissionLevelCubit,
+        EventTransformer<ServiceRequestedEvent>? eventTransformer})
       : super(eventTransformer: eventTransformer);
 
   final UserPermissionLevelCubit userPermissionLevelCubit;
@@ -42,13 +41,17 @@ class ProductCheckoutServiceRequested extends ServiceRequested {
 }
 
 class ProductCheckoutServiceBloc extends UserPermissionRequiredServiceBloc<
-    ProductCheckoutServiceRequested,
-    String> {
-  ProductCheckoutServiceBloc({required UserPermissionLevelCubit userPermissionLevelCubit})
-      : super(userPermissionLevelCubit: userPermissionLevelCubit);
+    ProductCheckoutServiceRequested, String> {
+  ProductCheckoutServiceBloc({
+    required UserPermissionLevelCubit userPermissionLevelCubit,
+    required this.repository,
+  }) : super(userPermissionLevelCubit: userPermissionLevelCubit);
+
+  final ProductRepository repository;
 
   @override
-  FutureOr<void> onRequest(ProductCheckoutServiceRequested event, Emitter<ServiceState> emit) {
+  FutureOr<void> onRequest(
+      ProductCheckoutServiceRequested event, Emitter<ServiceState> emit) async {
     if (userPermissionLevelCubit.state == UserPermissionLevel.invalid) {
       // TODO: implement permission error
     }
@@ -57,50 +60,90 @@ class ProductCheckoutServiceBloc extends UserPermissionRequiredServiceBloc<
 }
 ```
 
-- Locale
+- Locale (event level)
 
 ```dart
 class LocaleRequiredServiceRequested extends ServiceRequested {
-  LocaleRequiredServiceRequested({required this.locale});
-
+  const LocaleRequiredServiceRequested({required this.locale});
+  
   final Locale locale;
-
+  
   @override
   List<Object?> get props => [locale];
 }
-
-abstract class LocaleRequiredServiceBloc<
-ServiceRequested extends LocaleRequiredServiceRequested,
-ResponseData> extends ServiceBloc<ServiceRequested, ResponseData> {}
-
+  
 class ProductDetailServiceRequested extends LocaleRequiredServiceRequested {
-  ProductDetailServiceRequested({
+  const ProductDetailServiceRequested({
     required this.productId,
     required Locale locale,
   }) : super(locale: locale);
-
+  
   final String productId;
-
+  
   @override
-  List<Object?> get props =>
-      [
-        locale,
-        productId,
-      ];
+  List<Object?> get props => [
+    locale,
+    productId,
+  ];
 }
-
+  
+abstract class LocaleRequiredServiceBloc<
+ServiceRequested extends LocaleRequiredServiceRequested,
+ResponseData> extends ServiceBloc<ServiceRequested, ResponseData> {}
+  
 class ProductDetailServiceBloc extends LocaleRequiredServiceBloc<
-    ProductDetailServiceRequested,
-    ProductDetail> {
+    ProductDetailServiceRequested, ProductDetail> {
+  ProductDetailServiceBloc(this.repository);
+
+  final ProductRepository repository;
+  
   @override
-  FutureOr<void> onRequest(ProductDetailServiceRequested event, Emitter<ServiceState> emit) {
+  FutureOr<void> onRequest(
+      ProductDetailServiceRequested event, Emitter<ServiceState> emit) async {
     final locale = event.locale;
     // TODO: implement onRequest
   }
 }
 ```
+> This two examples shows that you can create your own service bloc with extensibility feature.
 
-This two examples shows that you can create your own service bloc with extensibility feature.
+Implement the pagination easily with built-in pagination service bloc
+
+- Open library author search
+
+```dart
+class OpenLibraryAuthorSearchServiceRequested
+    extends PaginationServiceRequested {
+  const OpenLibraryAuthorSearchServiceRequested(this.keyword);
+
+  final String keyword;
+
+  @override
+  List<Object?> get props => [
+        keyword,
+      ];
+}
+
+class OpenLibraryAuthorSearchReloadServiceRequested
+    extends OpenLibraryAuthorSearchServiceRequested with PaginationReload {
+  OpenLibraryAuthorSearchReloadServiceRequested(super.keyword);
+}
+
+class OpenLibraryAuthorSearchServiceBloc
+    extends PageBasedPaginationListServiceBloc<
+        OpenLibraryAuthorSearchServiceRequested,
+        OpenLibraryAuthorSearchResult> {
+  OpenLibraryAuthorSearchServiceBloc(this.repository);
+
+  final OpenLibraryRepository repository;
+
+  @override
+  FutureOr<List<OpenLibraryAuthorSearchResult>> onPaginationRequest(
+      OpenLibraryAuthorSearchServiceRequested event, num page) async {
+    // TODO: implement onRequest
+  }
+}
+```
 
 ## Live Template
 

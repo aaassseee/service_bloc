@@ -1,3 +1,8 @@
+## 2.0.0 (breaking change)
+
+* (breaking change) changed mergedData from covariant parameter initialization parameter
+* (breaking change) changed the initial mergedData fit from the type which is provided by user
+
 ## 1.0.0 (breaking change)
 
 * (breaking change) rename responseData to mergedData

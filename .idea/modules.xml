@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/flutter_service_bloc/example/example.iml" filepath="$PROJECT_DIR$/flutter_service_bloc/example/example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/flutter_service_bloc/example/android/example_android.iml" filepath="$PROJECT_DIR$/flutter_service_bloc/example/android/example_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/flutter_service_bloc/flutter_service_bloc.iml" filepath="$PROJECT_DIR$/flutter_service_bloc/flutter_service_bloc.iml" />
       <module fileurl="file://$PROJECT_DIR$/service_bloc/service_bloc.iml" filepath="$PROJECT_DIR$/service_bloc/service_bloc.iml" />
     </modules>

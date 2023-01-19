@@ -36,7 +36,7 @@ class OpenLibraryAuthorDetailPage extends StatelessWidget {
             OpenLibraryAuthorDetailServiceRequested, OpenLibraryAuthorDetail>(
           onLoading: (context, state, event) =>
               const Center(child: CircularProgressIndicator()),
-          onSucceed: (context, state, event, response) {
+          onSuccess: (context, state, event, response) {
             return ListView(
               children: [
                 if (response.photoIdList.isNotEmpty) ...[
