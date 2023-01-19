@@ -16,6 +16,7 @@ coverage/
 *.ipr
 *.iws
 .idea/
+!/*.iml
 !.idea/modules.xml
 
 # The .vscode folder contains launch configuration and tasks you configure in
