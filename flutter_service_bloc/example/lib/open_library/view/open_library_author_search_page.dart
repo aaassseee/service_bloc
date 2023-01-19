@@ -1,5 +1,6 @@
-import 'package:example/main.dart';
+import 'package:example/open_library/bloc/service_bloc.dart';
 import 'package:example/open_library/modal/modal.dart';
+import 'package:example/open_library/view/open_library_author_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_service_bloc/flutter_service_bloc.dart';

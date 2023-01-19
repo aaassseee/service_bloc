@@ -111,22 +111,23 @@ class OpenLibraryAuthorSearchServiceRequested
 }
 
 class OpenLibraryAuthorSearchReloadServiceRequested
-    extends OpenLibraryAuthorSearchServiceRequested
-    implements PaginationReloadServiceRequested {
-  const OpenLibraryAuthorSearchReloadServiceRequested(super.keyword);
+    extends OpenLibraryAuthorSearchServiceRequested with PaginationReload {
+  OpenLibraryAuthorSearchReloadServiceRequested(super.keyword);
 }
 
-class OpenLibraryAuthorSearchServiceBloc extends PaginationListServiceBloc<
-    OpenLibraryAuthorSearchServiceRequested, OpenLibraryAuthorSearchResult> {
+class OpenLibraryAuthorSearchServiceBloc
+    extends PageBasedPaginationListServiceBloc<
+        OpenLibraryAuthorSearchServiceRequested,
+        OpenLibraryAuthorSearchResult> {
   OpenLibraryAuthorSearchServiceBloc(this.repository);
 
   final OpenLibraryRepository repository;
 
   @override
   FutureOr<List<OpenLibraryAuthorSearchResult>> onPaginationRequest(
-      OpenLibraryAuthorSearchServiceRequested event, int page) async {
-    final response =
-        await repository.searchAuthor(keyword: event.keyword, pageNo: page);
+      OpenLibraryAuthorSearchServiceRequested event, num page) async {
+    final response = await repository.searchAuthor(
+        keyword: event.keyword, pageNo: page.toInt());
     return response.toList();
   }
 }
