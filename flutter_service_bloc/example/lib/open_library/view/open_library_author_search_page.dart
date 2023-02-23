@@ -38,7 +38,7 @@ class _OpenLibraryAuthorSearchPageState
       if (_scrollController.position.maxScrollExtent -
                   _scrollController.position.pixels <=
               144.0 &&
-          serviceBloc.hasNextPage) {
+          serviceBloc.pagination.hasNextPage) {
         serviceBloc.add(OpenLibraryAuthorSearchServiceRequested(
             _textEditingController.text));
       }

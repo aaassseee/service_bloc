@@ -7,7 +7,93 @@ import '../service_bloc.dart';
 
 part 'pagination_service_event.dart';
 
-abstract class PaginationType {}
+/// Type define function for page increment
+typedef PageIncrement<PageType, ResponseData> = PageType Function(
+    PageType previousPage, ResponseData responseData);
+
+/// Type define function for page reset
+typedef PageReset<PageType> = PageType Function();
+
+/// Type define function for page reset
+typedef PageUpdateHasNextPage<ResponseData> = bool Function(
+    ResponseData responseData);
+
+/// Base pagination class implemented with delegate structure
+abstract class Pagination<PageType, ResponseData> {
+  Pagination({
+    required PageType initialPage,
+    required this.onIncreasePage,
+    required this.onResetPage,
+    required this.onUpdateHasNextPage,
+  })  : _initialPage = initialPage,
+        _page = initialPage;
+
+  /// Initial page number / id for pagination service.
+  final PageType _initialPage;
+
+  /// Getter for initial page number / id.
+  PageType get initialPage => _initialPage;
+
+  /// Current page number / id for pagination service.
+  PageType _page;
+
+  /// Getter for current page number / id.
+  PageType get page => _page;
+
+  /// Has next page boolean flag which is useful for preventing requests when
+  /// there are no data left on server.
+  bool _hasNextPage = true;
+
+  /// Getter for has next page boolean flag.
+  bool get hasNextPage => _hasNextPage;
+
+  final PageIncrement<PageType, ResponseData> onIncreasePage;
+
+  final PageReset<PageType> onResetPage;
+
+  final PageUpdateHasNextPage<ResponseData> onUpdateHasNextPage;
+
+  void _pageIncrement(ResponseData responseData) {
+    _page = onIncreasePage(_page, responseData);
+  }
+
+  void _onReloadReset() {
+    _resetPage();
+    _hasNextPage = true;
+  }
+
+  void _resetPage() {
+    _page = onResetPage();
+  }
+
+  void _updateHasNextPage(ResponseData responseData) {
+    _hasNextPage = onUpdateHasNextPage(responseData);
+  }
+}
+
+class NumberBasedPagination<ResponseData>
+    extends Pagination<num, ResponseData> {
+  NumberBasedPagination({
+    super.initialPage = 0,
+    PageIncrement<num, ResponseData>? onIncreasePage,
+    PageReset<num>? onResetPage,
+    required super.onUpdateHasNextPage,
+  }) : super(
+          onIncreasePage: onIncreasePage ??
+              (previousPage, responseData) => previousPage + 1,
+          onResetPage: onResetPage ?? () => 0,
+        );
+}
+
+class CursorBasedPagination<ResponseData>
+    extends Pagination<String?, ResponseData> {
+  CursorBasedPagination({
+    super.initialPage,
+    required super.onIncreasePage,
+    PageReset<String?>? onResetPage,
+    required super.onUpdateHasNextPage,
+  }) : super(onResetPage: onResetPage ?? () => null);
+}
 
 /// Base class for pagination service implement with bloc architecture.
 ///
@@ -28,25 +114,23 @@ abstract class PaginationServiceBloc<
   /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
   /// for more detail.
   PaginationServiceBloc({
-    required PageType initialPage,
+    required Pagination<PageType, ResponseData> pagination,
     required ResponseData initialData,
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  })  : _page = initialPage,
-        _mergedData = initialData,
-        super(eventTransformer: eventTransformer);
+    super.eventTransformer,
+  })  : _pagination = pagination,
+        _initialData = initialData,
+        _mergedData = initialData;
 
-  /// Current page number / id for pagination service.
-  PageType _page;
+  /// Pagination
+  final Pagination<PageType, ResponseData> _pagination;
 
-  /// Getter for current page number / id.
-  PageType get page => _page;
+  Pagination<PageType, ResponseData> get pagination => _pagination;
 
-  /// Has next page boolean flag which is useful for preventing requests when
-  /// there are no data left on server.
-  bool _hasNextPage = true;
+  /// Initial response data which is used for resetting the [_mergedData].
+  final ResponseData _initialData;
 
-  /// Getter for has next page boolean flag.
-  bool get hasNextPage => _hasNextPage;
+  /// Getter for initial response data.
+  ResponseData get initialData => _initialData;
 
   /// Merged response data which is used for storing all response data. Every
   /// page response data should be merged with [_mergedData] within
@@ -71,7 +155,7 @@ abstract class PaginationServiceBloc<
   @override
   void add(PaginationServiceRequestedEvent event) {
     // if request is not a reload request and there is no more data in server.
-    if (event is! PaginationReload && !_hasNextPage) {
+    if (event is! PaginationReload && !_pagination.hasNextPage) {
       final eventType = event.runtimeType;
       throw StateError(
         '''add($eventType) was called when hasNextPage is false.\n'''
@@ -91,7 +175,7 @@ abstract class PaginationServiceBloc<
       onReloadReset();
     } else {
       if (!_isFirstLoaded) {
-        _page = incrementPageNumber(_page, _mergedData);
+        _pagination._pageIncrement(_mergedData);
       }
     }
 
@@ -102,24 +186,14 @@ abstract class PaginationServiceBloc<
   /// [PaginationReloadServiceRequested]
   @mustCallSuper
   FutureOr<void> onReloadReset() {
-    _page = onReloadResetPageNumber();
+    _pagination._onReloadReset();
     _mergedData = onReloadResetData();
-    _hasNextPage = true;
     _isFirstLoaded = true;
   }
 
-  /// Function for implementation of resetting [_page] when event is
-  /// [PaginationReloadServiceRequested].
-  PageType onReloadResetPageNumber();
-
   /// Function for implementation of resetting [_mergedData] when event is
   /// [PaginationReloadServiceRequested]
-  ResponseData onReloadResetData();
-
-  /// Function for implementation of increment page number before second
-  /// request. Page increment must be done within this function.
-  PageType incrementPageNumber(
-      PageType previousPage, ResponseData responseData);
+  ResponseData onReloadResetData() => initialData;
 
   /// Function for handling pagination request.
   @override
@@ -127,9 +201,9 @@ abstract class PaginationServiceBloc<
   FutureOr<void> onRequest(
       PaginationServiceRequestedEvent event, Emitter<ServiceState> emit) async {
     try {
-      final responseData = await onPaginationRequest(event, page);
+      final responseData = await onPaginationRequest(event, _pagination.page);
       _isFirstLoaded = false;
-      _hasNextPage = await updateHasNextPage(responseData);
+      _pagination._updateHasNextPage(responseData);
 
       final mergedData = await onMergingResponseData(_mergedData, responseData);
       _mergedData = mergedData;
@@ -146,10 +220,6 @@ abstract class PaginationServiceBloc<
   /// call or complete within this function.
   FutureOr<ResponseData> onPaginationRequest(
       PaginationServiceRequestedEvent event, PageType page);
-
-  /// Function for implementation of determinate has next page when
-  /// [onPaginationRequest] receiving [ResponseData].
-  FutureOr<bool> updateHasNextPage(ResponseData responseData);
 
   /// Function for implementation of merging response data. All data merging
   /// must be done within this function.
@@ -182,25 +252,10 @@ abstract class PaginationListServiceBloc<
   /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
   /// for more detail.
   PaginationListServiceBloc({
-    required PageType initialPage,
-    List<ResponseData> initialData = const [],
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for resetting [_mergedData] when event is
-  /// [PaginationReloadServiceRequested]
-  @override
-  List<ResponseData> onReloadResetData() => [];
-
-  /// Function for determinate has next page when [onPaginationRequest]
-  /// receiving [ResponseData].
-  @override
-  FutureOr<bool> updateHasNextPage(List<ResponseData> responseData) {
-    return responseData.isNotEmpty;
-  }
+    required super.pagination,
+    super.initialData = const [],
+    super.eventTransformer,
+  });
 
   /// Function for processing response data. All data merging must be done
   /// within this function.
@@ -236,242 +291,8 @@ abstract class PaginationObjectServiceBloc<
   /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
   /// for more detail.
   PaginationObjectServiceBloc({
-    required PageType initialPage,
-    required ResponseData initialData,
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-}
-
-/// Base class for number based pagination list service implement with bloc
-/// architecture.
-///
-/// Each [NumberBasedPaginationListServiceBloc] should create a unique event
-/// class extending [PaginationServiceRequested]
-///
-/// Each [NumberBasedPaginationListServiceBloc] should only return list of
-/// single base type as response type.
-///
-/// [ResponseData] should be the base type of a list of response data.
-///
-/// [ResponseData] should also not be any kind of [Iterable] because this
-/// class already handled for you. Except your response is a nested list.
-abstract class NumberBasedPaginationListServiceBloc<
-        PaginationServiceRequestedEvent extends PaginationServiceRequested,
-        ResponseData>
-    extends PaginationListServiceBloc<PaginationServiceRequestedEvent,
-        ResponseData, num> {
-  /// Constructor for creating [NumberBasedPaginationListServiceBloc].
-  ///
-  /// Parameter [eventTransformer] can be used for handing complex concurrent
-  /// event with different handling strategies.
-  /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
-  /// for more detail.
-  NumberBasedPaginationListServiceBloc({
-    num initialPage = 0,
-    List<ResponseData> initialData = const [],
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for resetting [_page] when event is
-  /// [PaginationReloadServiceRequested].
-  @override
-  num onReloadResetPageNumber() => 0;
-}
-
-/// Base class for number based pagination object service implement with bloc
-/// architecture.
-///
-/// Each [NumberBasedPaginationObjectServiceBloc] should create a unique event
-/// class extending [PaginationServiceRequested]
-///
-/// Each [NumberBasedPaginationObjectServiceBloc] should only return a single
-/// base type as response type.
-///
-/// [ResponseData] should be an object holding two or more array data.
-abstract class NumberBasedPaginationObjectServiceBloc<
-        PaginationServiceRequestedEvent extends PaginationServiceRequested,
-        ResponseData>
-    extends PaginationObjectServiceBloc<PaginationServiceRequestedEvent,
-        ResponseData, num> {
-  /// Constructor for creating [NumberBasedPaginationObjectServiceBloc].
-  ///
-  /// Parameter [eventTransformer] can be used for handing complex concurrent
-  /// event with different handling strategies.
-  /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
-  /// for more detail.
-  NumberBasedPaginationObjectServiceBloc({
-    num initialPage = 0,
-    required ResponseData initialData,
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for resetting [_page] when event is
-  /// [PaginationReloadServiceRequested].
-  @override
-  num onReloadResetPageNumber() => 0;
-}
-
-/// Base class for page based pagination list service implement with bloc
-/// architecture.
-///
-/// Each [PageBasedPaginationListServiceBloc] should create a unique event class
-/// extending [PaginationServiceRequested]
-///
-/// Each [PageBasedPaginationListServiceBloc] should only return list of single
-/// base type as response type.
-///
-/// [ResponseData] should be the base type of a list of response data.
-///
-/// [ResponseData] should also not be any kind of [Iterable] because this
-/// class already handled for you. Except your response is a nested list.
-abstract class PageBasedPaginationListServiceBloc<
-        PaginationServiceRequestedEvent extends PaginationServiceRequested,
-        ResponseData>
-    extends NumberBasedPaginationListServiceBloc<
-        PaginationServiceRequestedEvent, ResponseData> {
-  /// Constructor for creating [PageBasedPaginationListServiceBloc].
-  ///
-  /// Parameter [eventTransformer] can be used for handing complex concurrent
-  /// event with different handling strategies.
-  /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
-  /// for more detail.
-  PageBasedPaginationListServiceBloc({
-    int initialPage = 0,
-    List<ResponseData> initialData = const [],
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for increment page number before second request. Page increment
-  /// must be done within this function.
-  @override
-  num incrementPageNumber(
-      num previousPage, covariant List<ResponseData>? responseData) {
-    return previousPage + 1;
-  }
-}
-
-/// Base class for page based pagination object service implement with bloc
-/// architecture.
-///
-/// Each [PageBasedPaginationObjectServiceBloc] should create a unique event
-/// class extending [PaginationServiceRequested]
-///
-/// Each [PageBasedPaginationObjectServiceBloc] should only return a single base
-/// type as response type.
-///
-/// [ResponseData] should be an object holding two or more array data.
-abstract class PageBasedPaginationObjectServiceBloc<
-        PaginationServiceRequestedEvent extends PaginationServiceRequested,
-        ResponseData>
-    extends NumberBasedPaginationObjectServiceBloc<
-        PaginationServiceRequestedEvent, ResponseData> {
-  /// Constructor for creating [PageBasedPaginationObjectServiceBloc].
-  ///
-  /// Parameter [eventTransformer] can be used for handing complex concurrent
-  /// event with different handling strategies.
-  /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
-  /// for more detail.
-  PageBasedPaginationObjectServiceBloc({
-    num initialPage = 0,
-    required ResponseData initialData,
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for increment page number before second request. Page increment
-  /// must be done within this function.
-  @override
-  num incrementPageNumber(
-      num previousPage, covariant ResponseData? responseData) {
-    return previousPage + 1;
-  }
-}
-
-/// Base class for cursor based pagination list service implement with bloc
-/// architecture.
-///
-/// Each [CursorBasedPaginationListServiceBloc] should create a unique event
-/// class extending [PaginationServiceRequested]
-///
-/// Each [CursorBasedPaginationListServiceBloc] should only return list of
-/// single base type as response type.
-///
-/// [ResponseData] should be the base type of a list of response data.
-///
-/// [ResponseData] should also not be any kind of [Iterable] because this
-/// class already handled for you. Except your response is a nested list.
-abstract class CursorBasedPaginationListServiceBloc<
-        PaginationServiceRequestedEvent extends PaginationServiceRequested,
-        ResponseData>
-    extends PaginationListServiceBloc<PaginationServiceRequestedEvent,
-        ResponseData, String?> {
-  /// Constructor for creating [CursorBasedPaginationListServiceBloc].
-  ///
-  /// Parameter [eventTransformer] can be used for handing complex concurrent
-  /// event with different handling strategies.
-  /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
-  /// for more detail.
-  CursorBasedPaginationListServiceBloc({
-    String? initialPage,
-    List<ResponseData> initialData = const [],
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for resetting [_page] when event is
-  /// [PaginationReloadServiceRequested].
-  @override
-  String? onReloadResetPageNumber() => null;
-}
-
-/// Base class for cursor base pagination object service implement with bloc
-/// architecture.
-///
-/// Each [CursorBasedPaginationObjectServiceBloc] should create a unique event
-/// class extending [PaginationServiceRequested]
-///
-/// Each [CursorBasedPaginationObjectServiceBloc] should only return a single
-/// base type as response type.
-///
-/// [ResponseData] should be an object holding two or more array data.
-abstract class CursorBasedPaginationObjectServiceBloc<
-        PaginationServiceRequestedEvent extends PaginationServiceRequested,
-        ResponseData>
-    extends PaginationObjectServiceBloc<PaginationServiceRequestedEvent,
-        ResponseData, String?> {
-  /// Constructor for creating [CursorBasedPaginationObjectServiceBloc].
-  ///
-  /// Parameter [eventTransformer] can be used for handing complex concurrent
-  /// event with different handling strategies.
-  /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
-  /// for more detail.
-  CursorBasedPaginationObjectServiceBloc({
-    String? initialPage,
-    required ResponseData initialData,
-    EventTransformer<PaginationServiceRequestedEvent>? eventTransformer,
-  }) : super(
-            initialPage: initialPage,
-            initialData: initialData,
-            eventTransformer: eventTransformer);
-
-  /// Function for resetting [_page] when event is
-  /// [PaginationReloadServiceRequested].
-  @override
-  String? onReloadResetPageNumber() => null;
+    required super.pagination,
+    required super.initialData,
+    super.eventTransformer,
+  });
 }

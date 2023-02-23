@@ -132,8 +132,8 @@ void main() {
         expect(serviceBloc.data, null);
         expect(serviceBloc.hasData, false);
         expect(serviceBloc.mergedData, []);
-        expect(serviceBloc.page, 0);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 0);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, true);
       });
 
@@ -146,8 +146,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, []);
-            expect(serviceBloc.page, 0);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 0);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -164,8 +164,8 @@ void main() {
         expect(serviceBloc.data, firstPageResponse);
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData, firstPageResponse);
-        expect(serviceBloc.page, 0);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 0);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 1
@@ -175,8 +175,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, firstPageResponse);
-            expect(serviceBloc.page, 1);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 1);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -202,8 +202,8 @@ void main() {
           ...firstPageResponse,
           ...secondPageResponse,
         ]);
-        expect(serviceBloc.page, 1);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 1);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 2 (empty array)
@@ -216,8 +216,8 @@ void main() {
               ...firstPageResponse,
               ...secondPageResponse,
             ]);
-            expect(serviceBloc.page, 2);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 2);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -243,8 +243,8 @@ void main() {
           ...firstPageResponse,
           ...secondPageResponse,
         ]);
-        expect(serviceBloc.page, 2);
-        expect(serviceBloc.hasNextPage, false);
+        expect(serviceBloc.pagination.page, 2);
+        expect(serviceBloc.pagination.hasNextPage, false);
         expect(serviceBloc.isFirstLoaded, false);
 
         expect(
@@ -259,8 +259,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, []);
-            expect(serviceBloc.page, 0);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 0);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -272,8 +272,8 @@ void main() {
         expect(serviceBloc.data, firstPageResponse);
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData, firstPageResponse);
-        expect(serviceBloc.page, 0);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 0);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
       });
 
@@ -318,8 +318,8 @@ void main() {
         expect(serviceBloc.data, null);
         expect(serviceBloc.hasData, false);
         expect(serviceBloc.mergedData, null);
-        expect(serviceBloc.page, 0);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 0);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, true);
       });
 
@@ -332,8 +332,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, null);
-            expect(serviceBloc.page, 0);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 0);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -352,8 +352,8 @@ void main() {
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData,
             SampleObject(firstPageResponse, firstPageResponse));
-        expect(serviceBloc.page, 0);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 0);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 1
@@ -364,8 +364,8 @@ void main() {
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData,
                 SampleObject(firstPageResponse, firstPageResponse));
-            expect(serviceBloc.page, 1);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 1);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -404,8 +404,8 @@ void main() {
               ...firstPageResponse,
               ...secondPageResponse,
             ]));
-        expect(serviceBloc.page, 1);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 1);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 2
@@ -423,8 +423,8 @@ void main() {
                   ...firstPageResponse,
                   ...secondPageResponse,
                 ]));
-            expect(serviceBloc.page, 2);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 2);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -463,8 +463,8 @@ void main() {
               ...firstPageResponse,
               ...secondPageResponse,
             ]));
-        expect(serviceBloc.page, 2);
-        expect(serviceBloc.hasNextPage, false);
+        expect(serviceBloc.pagination.page, 2);
+        expect(serviceBloc.pagination.hasNextPage, false);
         expect(serviceBloc.isFirstLoaded, false);
 
         expect(
@@ -479,8 +479,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, null);
-            expect(serviceBloc.page, 0);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, 0);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -494,8 +494,8 @@ void main() {
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData,
             SampleObject(firstPageResponse, firstPageResponse));
-        expect(serviceBloc.page, 0);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, 0);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
       });
 
@@ -542,8 +542,8 @@ void main() {
         expect(serviceBloc.data, null);
         expect(serviceBloc.hasData, false);
         expect(serviceBloc.mergedData, []);
-        expect(serviceBloc.page, null);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, null);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, true);
       });
 
@@ -556,8 +556,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, []);
-            expect(serviceBloc.page, null);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, null);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -574,8 +574,8 @@ void main() {
         expect(serviceBloc.data, firstPageResponse);
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData, firstPageResponse);
-        expect(serviceBloc.page, null);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, null);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 1
@@ -585,8 +585,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, firstPageResponse);
-            expect(serviceBloc.page, '1');
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, '1');
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -612,8 +612,8 @@ void main() {
           ...firstPageResponse,
           ...secondPageResponse,
         ]);
-        expect(serviceBloc.page, '1');
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, '1');
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 2 (empty array)
@@ -626,8 +626,8 @@ void main() {
               ...firstPageResponse,
               ...secondPageResponse,
             ]);
-            expect(serviceBloc.page, '2');
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, '2');
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -653,8 +653,8 @@ void main() {
           ...firstPageResponse,
           ...secondPageResponse,
         ]);
-        expect(serviceBloc.page, '2');
-        expect(serviceBloc.hasNextPage, false);
+        expect(serviceBloc.pagination.page, '2');
+        expect(serviceBloc.pagination.hasNextPage, false);
         expect(serviceBloc.isFirstLoaded, false);
 
         expect(
@@ -669,8 +669,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, []);
-            expect(serviceBloc.page, null);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, null);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -682,8 +682,8 @@ void main() {
         expect(serviceBloc.data, firstPageResponse);
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData, firstPageResponse);
-        expect(serviceBloc.page, null);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, null);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
       });
 
@@ -728,8 +728,8 @@ void main() {
         expect(serviceBloc.data, null);
         expect(serviceBloc.hasData, false);
         expect(serviceBloc.mergedData, null);
-        expect(serviceBloc.page, null);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, null);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, true);
       });
 
@@ -742,8 +742,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, null);
-            expect(serviceBloc.page, null);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, null);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -762,8 +762,8 @@ void main() {
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData,
             SampleObject(firstPageResponse, firstPageResponse));
-        expect(serviceBloc.page, null);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, null);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 1
@@ -774,8 +774,8 @@ void main() {
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData,
                 SampleObject(firstPageResponse, firstPageResponse));
-            expect(serviceBloc.page, '1');
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, '1');
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -814,8 +814,8 @@ void main() {
               ...firstPageResponse,
               ...secondPageResponse,
             ]));
-        expect(serviceBloc.page, '1');
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, '1');
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
 
         // page 2
@@ -833,8 +833,8 @@ void main() {
                   ...firstPageResponse,
                   ...secondPageResponse,
                 ]));
-            expect(serviceBloc.page, '2');
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, '2');
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, false);
             continue;
           }
@@ -873,8 +873,8 @@ void main() {
               ...firstPageResponse,
               ...secondPageResponse,
             ]));
-        expect(serviceBloc.page, '2');
-        expect(serviceBloc.hasNextPage, false);
+        expect(serviceBloc.pagination.page, '2');
+        expect(serviceBloc.pagination.hasNextPage, false);
         expect(serviceBloc.isFirstLoaded, false);
         expect(
             () => serviceBloc
@@ -888,8 +888,8 @@ void main() {
             expect(serviceBloc.data, null);
             expect(serviceBloc.hasData, false);
             expect(serviceBloc.mergedData, null);
-            expect(serviceBloc.page, null);
-            expect(serviceBloc.hasNextPage, true);
+            expect(serviceBloc.pagination.page, null);
+            expect(serviceBloc.pagination.hasNextPage, true);
             expect(serviceBloc.isFirstLoaded, true);
             continue;
           }
@@ -903,8 +903,8 @@ void main() {
         expect(serviceBloc.hasData, true);
         expect(serviceBloc.mergedData,
             SampleObject(firstPageResponse, firstPageResponse));
-        expect(serviceBloc.page, null);
-        expect(serviceBloc.hasNextPage, true);
+        expect(serviceBloc.pagination.page, null);
+        expect(serviceBloc.pagination.hasNextPage, true);
         expect(serviceBloc.isFirstLoaded, false);
       });
 
@@ -1038,8 +1038,14 @@ class SampleServicePaginationReloadRequested
 }
 
 class SamplePageBasedPaginationListServiceBloc
-    extends PageBasedPaginationListServiceBloc<
-        SampleServicePaginationRequestedBase, String> {
+    extends PaginationListServiceBloc<SampleServicePaginationRequestedBase,
+        String, num> {
+  SamplePageBasedPaginationListServiceBloc()
+      : super(
+            pagination: NumberBasedPagination(
+          onUpdateHasNextPage: (responseData) => responseData.isNotEmpty,
+        ));
+
   @override
   FutureOr<List<String>> onPaginationRequest(
       SampleServicePaginationRequestedBase event, num page) {
@@ -1067,16 +1073,15 @@ class SamplePageBasedPaginationListServiceBloc
 }
 
 class SamplePageBasedPaginationObjectServiceBloc
-    extends PageBasedPaginationObjectServiceBloc<
-        SampleServicePaginationRequestedBase, SampleObject?> {
-  SamplePageBasedPaginationObjectServiceBloc({SampleObject? initialData})
-      : super(initialData: initialData);
-
-  @override
-  FutureOr<bool> updateHasNextPage(SampleObject? responseData) {
-    return responseData != null &&
-        (responseData.data1.isNotEmpty || responseData.data2.isNotEmpty);
-  }
+    extends PaginationObjectServiceBloc<SampleServicePaginationRequestedBase,
+        SampleObject?, num> {
+  SamplePageBasedPaginationObjectServiceBloc({super.initialData})
+      : super(
+            pagination: NumberBasedPagination(
+          onUpdateHasNextPage: (responseData) =>
+              responseData != null &&
+              (responseData.data1.isNotEmpty || responseData.data2.isNotEmpty),
+        ));
 
   @override
   FutureOr<SampleObject?> onPaginationRequest(
@@ -1129,8 +1134,17 @@ class SamplePageBasedPaginationObjectServiceBloc
 }
 
 class SampleCursorBasedPaginationListServiceBloc
-    extends CursorBasedPaginationListServiceBloc<
-        SampleServicePaginationRequestedBase, String> {
+    extends PaginationListServiceBloc<SampleServicePaginationRequestedBase,
+        String, String?> {
+  SampleCursorBasedPaginationListServiceBloc()
+      : super(
+          pagination: CursorBasedPagination(
+            onIncreasePage: (previousPage, responseData) =>
+                ((int.tryParse(previousPage ?? '0') ?? 0) + 1).toString(),
+            onUpdateHasNextPage: (responseData) => responseData.isNotEmpty,
+          ),
+        );
+
   @override
   FutureOr<List<String>> onPaginationRequest(
       SampleServicePaginationRequestedBase event, String? page) {
@@ -1157,25 +1171,22 @@ class SampleCursorBasedPaginationListServiceBloc
       SampleServicePaginationFailureRequested event, String? page) {
     throw ServiceError();
   }
-
-  @override
-  String? incrementPageNumber(
-      String? previousPage, covariant List<String>? responseData) {
-    return ((int.tryParse(previousPage ?? '0') ?? 0) + 1).toString();
-  }
 }
 
 class SampleCursorBasedPaginationObjectServiceBloc
-    extends CursorBasedPaginationObjectServiceBloc<
-        SampleServicePaginationRequestedBase, SampleObject?> {
-  SampleCursorBasedPaginationObjectServiceBloc({SampleObject? initialData})
-      : super(initialData: initialData);
-
-  @override
-  FutureOr<bool> updateHasNextPage(SampleObject? responseData) {
-    return responseData != null &&
-        (responseData.data1.isNotEmpty || responseData.data2.isNotEmpty);
-  }
+    extends PaginationObjectServiceBloc<SampleServicePaginationRequestedBase,
+        SampleObject?, String?> {
+  SampleCursorBasedPaginationObjectServiceBloc({super.initialData})
+      : super(
+          pagination: CursorBasedPagination(
+            onIncreasePage: (previousPage, responseData) =>
+                ((int.tryParse(previousPage ?? '0') ?? 0) + 1).toString(),
+            onUpdateHasNextPage: (responseData) =>
+                responseData != null &&
+                (responseData.data1.isNotEmpty ||
+                    responseData.data2.isNotEmpty),
+          ),
+        );
 
   @override
   FutureOr<SampleObject?> onPaginationRequest(
@@ -1226,10 +1237,4 @@ class SampleCursorBasedPaginationObjectServiceBloc
 
   @override
   SampleObject? onReloadResetData() => null;
-
-  @override
-  String? incrementPageNumber(
-      String? previousPage, covariant SampleObject? responseData) {
-    return ((int.tryParse(previousPage ?? '0') ?? 0) + 1).toString();
-  }
 }
