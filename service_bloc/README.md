@@ -129,11 +129,17 @@ class OpenLibraryAuthorSearchReloadServiceRequested
   OpenLibraryAuthorSearchReloadServiceRequested(super.keyword);
 }
 
-class OpenLibraryAuthorSearchServiceBloc
-    extends PageBasedPaginationListServiceBloc<
-        OpenLibraryAuthorSearchServiceRequested,
-        OpenLibraryAuthorSearchResult> {
-  OpenLibraryAuthorSearchServiceBloc(this.repository);
+class OpenLibraryAuthorSearchServiceBloc extends PaginationServiceBloc<
+    OpenLibraryAuthorSearchServiceRequested,
+    List<OpenLibraryAuthorSearchResult>,
+    num> {
+  OpenLibraryAuthorSearchServiceBloc(this.repository)
+      : super(
+    pagination: NumberBasedPagination(
+      onUpdateHasNextPage: (responseData) => responseData.isNotEmpty,
+    ),
+    paginationResponseData: PaginationListResponseData(),
+  );
 
   final OpenLibraryRepository repository;
 

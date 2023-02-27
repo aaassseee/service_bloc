@@ -1,3 +1,8 @@
+## 3.0.0-dev.0 (breaking change)
+
+* (breaking change) refactor object and list pagination object, number and cursor base pagination
+  with [bridge design pattern](https://refactoring.guru/design-patterns/bridge).
+
 ## 2.0.0 (breaking change)
 
 * (breaking change) changed mergedData from covariant parameter initialization parameter

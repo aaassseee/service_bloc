@@ -31,7 +31,7 @@ class OpenLibraryAuthorSearchServiceBloc extends PaginationServiceBloc<
           pagination: NumberBasedPagination(
             onUpdateHasNextPage: (responseData) => responseData.isNotEmpty,
           ),
-          dataProcessor: PaginationListResponseDataProcessor(),
+          paginationResponseData: PaginationListResponseData(),
         );
 
   final OpenLibraryRepository repository;

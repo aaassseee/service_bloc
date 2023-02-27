@@ -7,23 +7,41 @@ import '../service_bloc.dart';
 
 part 'pagination_service_event.dart';
 
-/// Type define function for page increment
+/// Type define function for increase page.
 typedef PageIncrement<PageType, ResponseData> = PageType Function(
     PageType previousPage, ResponseData responseData);
 
-/// Type define function for page reset
+/// Type define function for rest page.
 typedef PageReset<PageType> = PageType Function();
 
-/// Type define function for page reset
+/// Type define function for update has next page boolean.
 typedef PageUpdateHasNextPage<ResponseData> = bool Function(
     ResponseData responseData);
 
-/// Base pagination class implemented with delegate structure
+/// Base pagination class implemented with delegate class style. [Pagination]
+/// handles all page modification.
 abstract class Pagination<PageType, ResponseData> {
+  /// Constructor for creating a [Pagination]
+  ///
+  /// {@template pagination_constructor}
+  /// [initialPage] used when first [PaginationServiceRequested] or
+  /// [_reloadResetPage] before request when [PaginationServiceRequested] with
+  /// [PaginationReload].
+  ///
+  /// [onIncreasePage] handles next page increment when
+  /// [PaginationServiceRequested] without [PaginationReload] is added after first
+  /// call.
+  ///
+  /// [onReloadResetPage] handles reset page when [PaginationServiceRequested] with
+  /// [PaginationReload] is added.
+  ///
+  /// [onUpdateHasNextPage] handles updating is pagination still have data left
+  /// after each [PaginationServiceRequested] is completed.
+  /// {@endtemplate}
   Pagination({
     required PageType initialPage,
     required this.onIncreasePage,
-    required this.onResetPage,
+    required this.onReloadResetPage,
     required this.onUpdateHasNextPage,
   })  : _initialPage = initialPage,
         _page = initialPage;
@@ -47,32 +65,46 @@ abstract class Pagination<PageType, ResponseData> {
   /// Getter for has next page boolean flag.
   bool get hasNextPage => _hasNextPage;
 
+  /// Injection function for implementing page increment.
   final PageIncrement<PageType, ResponseData> onIncreasePage;
 
-  final PageReset<PageType> onResetPage;
+  /// Injection function for implementing reload page reset.
+  final PageReset<PageType> onReloadResetPage;
 
+  /// Injection function for implementing update has next page.
   final PageUpdateHasNextPage<ResponseData> onUpdateHasNextPage;
 
+  /// Private function for internal use when [PaginationServiceBloc.onPreRequest]
+  /// second service call.
   void _pageIncrement(ResponseData responseData) {
-    _page = onIncreasePage(_page, responseData);
+    _page = onIncreasePage(page, responseData);
   }
 
+  /// Private function for reset page data when [PaginationServiceBloc] with
+  /// [PaginationReload].
   void _onReloadReset() {
-    _resetPage();
+    _reloadResetPage();
     _hasNextPage = true;
   }
 
-  void _resetPage() {
-    _page = onResetPage();
+  /// Private function for reset page when [_onReloadReset] is called.
+  void _reloadResetPage() {
+    _page = onReloadResetPage();
   }
 
+  /// Private function for update has next page when request is completed.
   void _updateHasNextPage(ResponseData responseData) {
     _hasNextPage = onUpdateHasNextPage(responseData);
   }
 }
 
+/// Number based pagination class implemented with delegate class style.
+/// [NumberBasedPagination] handles all number based page modification.
 class NumberBasedPagination<ResponseData>
     extends Pagination<num, ResponseData> {
+  /// Constructor for creating a [NumberBasedPagination]
+  ///
+  /// {@macro pagination_constructor}
   NumberBasedPagination({
     super.initialPage = 0,
     PageIncrement<num, ResponseData>? onIncreasePage,
@@ -81,28 +113,49 @@ class NumberBasedPagination<ResponseData>
   }) : super(
           onIncreasePage: onIncreasePage ??
               (previousPage, responseData) => previousPage + 1,
-          onResetPage: onResetPage ?? () => 0,
+          onReloadResetPage: onResetPage ?? () => 0,
         );
 }
 
+/// Cursor based pagination class implemented with delegate class style.
+/// [CursorBasedPagination] handles all cursor based page modification.
 class CursorBasedPagination<ResponseData>
     extends Pagination<String?, ResponseData> {
+  /// Constructor for creating a [CursorBasedPagination]
+  ///
+  /// {@macro pagination_constructor}
   CursorBasedPagination({
     super.initialPage,
     required super.onIncreasePage,
     PageReset<String?>? onResetPage,
     required super.onUpdateHasNextPage,
-  }) : super(onResetPage: onResetPage ?? () => null);
+  }) : super(onReloadResetPage: onResetPage ?? () => null);
 }
 
+/// Type define function for migrate pagination response data.
 typedef PaginationResponseDataMigration<ResponseData> = FutureOr<ResponseData>
     Function(ResponseData previousResponseData, ResponseData responseData);
 
+/// Type define function for reset pagination response data.
 typedef PaginationResponseDataReset<ResponseData> = FutureOr<ResponseData>
     Function();
 
-abstract class PaginationResponseDataProcessor<ResponseData> {
-  PaginationResponseDataProcessor({
+/// Base pagination response data holder and processor.
+/// [PaginationResponseData] handles storing data and process data.
+abstract class PaginationResponseData<ResponseData> {
+  /// Constructor for creating pagination response data.
+  ///
+  /// {@template pagination_response_data_constructor}
+  /// [initialData] used when initial or [_reloadResetResponseData]
+  /// before request when [PaginationServiceRequested] with [PaginationReload].
+  ///
+  /// [onMergingResponseData] handles data migration when any request complete
+  /// without error.
+  ///
+  /// [onReloadResetResponseData] handles reset response data when
+  /// [PaginationServiceRequested] with [PaginationReload] is added.
+  /// {@endtemplate}
+  PaginationResponseData({
     required ResponseData initialData,
     required this.onMergingResponseData,
     PaginationResponseDataReset? onReloadResetResponseData,
@@ -146,9 +199,15 @@ abstract class PaginationResponseDataProcessor<ResponseData> {
   }
 }
 
-class PaginationListResponseDataProcessor<ResponseData>
-    extends PaginationResponseDataProcessor<List<ResponseData>> {
-  PaginationListResponseDataProcessor({
+/// List pagination response data holder and processor.
+/// [PaginationListResponseData] handles storing list response data and process
+/// list response data.
+class PaginationListResponseData<ResponseData>
+    extends PaginationResponseData<List<ResponseData>> {
+  /// Constructor for creating list pagination response data.
+  ///
+  /// {@macro pagination_response_data_constructor}
+  PaginationListResponseData({
     super.initialData = const [],
     PaginationResponseDataMigration<List<ResponseData>>? onMergingResponseData,
     super.onReloadResetResponseData,
@@ -158,9 +217,15 @@ class PaginationListResponseDataProcessor<ResponseData>
                   ..addAll(responseData));
 }
 
-class PaginationObjectResponseDataProcessor<ResponseData>
-    extends PaginationResponseDataProcessor<ResponseData> {
-  PaginationObjectResponseDataProcessor({
+/// Object pagination response data holder and processor.
+/// [PaginationObjectResponseData] handles storing object response data and
+/// process object response data.
+class PaginationObjectResponseData<ResponseData>
+    extends PaginationResponseData<ResponseData> {
+  /// Constructor for creating object pagination response data.
+  ///
+  /// {@macro pagination_response_data_constructor}
+  PaginationObjectResponseData({
     required super.initialData,
     required super.onMergingResponseData,
     super.onReloadResetResponseData,
@@ -187,20 +252,24 @@ abstract class PaginationServiceBloc<
   /// for more detail.
   PaginationServiceBloc({
     required Pagination<PageType, ResponseData> pagination,
-    required PaginationResponseDataProcessor<ResponseData> dataProcessor,
+    required PaginationResponseData<ResponseData> paginationResponseData,
     super.eventTransformer,
   })  : _pagination = pagination,
-        _dataProcessor = dataProcessor;
+        _paginationResponseData = paginationResponseData;
 
-  /// Pagination
+  /// Pagination which is used to handle page store, modify and reset.
   final Pagination<PageType, ResponseData> _pagination;
 
+  /// Getter for pagination.
   Pagination<PageType, ResponseData> get pagination => _pagination;
 
-  final PaginationResponseDataProcessor<ResponseData> _dataProcessor;
+  /// Pagination response data which is used to handle response data
+  /// store, migration and reset.
+  final PaginationResponseData<ResponseData> _paginationResponseData;
 
-  PaginationResponseDataProcessor<ResponseData> get dataProcessor =>
-      _dataProcessor;
+  /// Getter for pagination response data.
+  PaginationResponseData<ResponseData> get paginationResponseData =>
+      _paginationResponseData;
 
   /// Is first loaded boolean flag which is useful for page incrementation when
   /// [PaginationServiceRequested] is added.
@@ -237,7 +306,7 @@ abstract class PaginationServiceBloc<
       onReloadReset();
     } else {
       if (!_isFirstLoaded) {
-        _pagination._pageIncrement(_dataProcessor.mergedData);
+        _pagination._pageIncrement(_paginationResponseData.mergedData);
       }
     }
 
@@ -249,7 +318,7 @@ abstract class PaginationServiceBloc<
   @mustCallSuper
   FutureOr<void> onReloadReset() {
     _pagination._onReloadReset();
-    _dataProcessor._reloadResetResponseData();
+    _paginationResponseData._reloadResetResponseData();
     _isFirstLoaded = true;
   }
 
@@ -263,10 +332,10 @@ abstract class PaginationServiceBloc<
       _isFirstLoaded = false;
       _pagination._updateHasNextPage(responseData);
 
-      await _dataProcessor._mergeResponseData(responseData);
+      await _paginationResponseData._mergeResponseData(responseData);
 
       emit(ServiceLoadSuccess<PaginationServiceRequestedEvent, ResponseData>(
-          event: event, data: _dataProcessor.mergedData));
+          event: event, data: _paginationResponseData.mergedData));
     } catch (error) {
       emit(ServiceLoadFailure<PaginationServiceRequestedEvent>(
           event: event, error: error));
