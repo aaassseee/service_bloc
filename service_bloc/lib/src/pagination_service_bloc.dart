@@ -276,7 +276,6 @@ abstract class PaginationServiceBloc<
   bool _isFirstLoaded = true;
 
   /// Getter for is first loaded boolean flag
-  @visibleForTesting
   bool get isFirstLoaded => _isFirstLoaded;
 
   /// Overrode [add] function from [Bloc] to prevent
