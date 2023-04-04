@@ -115,7 +115,7 @@ class ServiceBlocListener<
       BuildContext context,
       ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
       ServiceRequestedEvent event,
-      ResponseData? data)? onSuccess;
+      ResponseData data)? onSuccess;
 
   /// A function which is only called when [listenWhen] is omitted or custom
   /// [listenWhen] is passed and [onFailure] is not omitted and current state is
