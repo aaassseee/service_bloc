@@ -1,3 +1,7 @@
+## 3.0.1
+
+* fixed service bloc listener shouldn't pre-define nullable response data
+
 ## 3.0.0
 
 * update breaking
