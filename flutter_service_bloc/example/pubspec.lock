@@ -445,10 +445,11 @@ packages:
   service_bloc:
     dependency: transitive
     description:
-      path: "../../service_bloc"
-      relative: true
-    source: path
-    version: "3.0.0"
+      name: service_bloc
+      sha256: "300b10188038167463f992c5674463e2c43b02fe987a02a88a404d88e6425f18"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0+1"
   shelf:
     dependency: transitive
     description:

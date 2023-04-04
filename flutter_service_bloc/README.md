@@ -24,7 +24,7 @@ ServiceBlocListener<ProductCheckoutServiceBloc, ProductCheckoutServiceRequested,
 
 ```dart
 ServiceBlocListener<ProductCheckoutServiceBloc, ProductCheckoutServiceRequested, String>(
-  onSucceed: (context, state, event, response) => Navigator.of(context).pushNamed(<your route>),
+  onSucceed: (context, state, event, data) => Navigator.of(context).pushNamed(<your route>),
 ),
 ```
 
@@ -32,7 +32,7 @@ ServiceBlocListener<ProductCheckoutServiceBloc, ProductCheckoutServiceRequested,
 
 ```dart
 ServiceBlocListener<UserLogoutServiceBloc, UserLogoutServiceRequested, dynamic>(
-  onSucceed: (context, state, event, response) => context.read<UserCubit>().clearUserData(),
+  onSucceed: (context, state, event, data) => context.read<UserCubit>().clearUserData(),
 ),
 ```
 
@@ -41,7 +41,7 @@ ServiceBlocListener<UserLogoutServiceBloc, UserLogoutServiceRequested, dynamic>(
 ```dart
 ServiceBlocBuilder<OpenLibraryAuthorDetailServiceBloc, OpenLibraryAuthorDetailServiceRequested, OpenLibraryAuthorDetail>(
   onLoading: (context, state, event) => // your loading widget,
-  onSucceed: (context, state, event, response) {
+  onSucceed: (context, state, event, data) {
     return // your success widget
   },
   onFailed: (context, state, event, error) => // your failure widget,
