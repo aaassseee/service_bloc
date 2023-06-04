@@ -28,59 +28,32 @@ class ServiceBlocBuilder<
           key: key,
           bloc: bloc,
           buildWhen: buildWhen ??
-              (previous, current) {
-                if (current is ServiceInitial) {
-                  return onInitial != null;
-                }
-
-                if (current is ServiceLoadInProgress<ServiceRequestedEvent>) {
-                  return onLoading != null;
-                }
-
-                if (current is ServiceLoadSuccess<ServiceRequestedEvent,
-                    ResponseData>) {
-                  return true;
-                }
-
-                if (current is ServiceLoadFailure<ServiceRequestedEvent>) {
-                  return onFailure != null;
-                }
-
-                return false;
-              },
-          builder: (context, state) {
-            if (state is ServiceInitial) {
-              if (onInitial == null) {
-                return fallback;
-              }
-              return onInitial(context, state);
-            }
-
-            if (state is ServiceLoadInProgress<ServiceRequestedEvent>) {
-              if (onLoading == null) {
-                return fallback;
-              }
-              return onLoading(context, state, state.event);
-            }
-
-            if (state
-                is ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>) {
-              final data = state.data;
-              if (data == null) {
-                return fallback;
-              }
-
-              return onSuccess(context, state, state.event, data);
-            }
-
-            if (state is ServiceLoadFailure<ServiceRequestedEvent>) {
-              if (onFailure == null) {
-                return fallback;
-              }
-              return onFailure(context, state, state.event, state.error);
-            }
-
-            return fallback;
+              (previous, current) => switch (current) {
+                    ServiceInitial() => onInitial != null,
+                    ServiceLoadInProgress<ServiceRequestedEvent>() =>
+                      onLoading != null,
+                    ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>() =>
+                      true,
+                    ServiceLoadFailure<ServiceRequestedEvent>() =>
+                      onFailure != null,
+                    _ => false
+                  },
+          builder: (context, state) => switch (state) {
+            ServiceInitial() when onInitial != null =>
+              onInitial(context, state),
+            ServiceLoadInProgress<ServiceRequestedEvent>()
+                when onLoading != null =>
+              onLoading(context, state, state.event),
+            ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>(
+              event: _,
+              data: final data
+            )
+                when data != null =>
+              onSuccess(context, state, state.event, data),
+            ServiceLoadFailure<ServiceRequestedEvent>()
+                when onFailure != null =>
+              onFailure(context, state, state.event, state.error),
+            _ => fallback,
           },
         );
 
@@ -91,7 +64,10 @@ class ServiceBlocBuilder<
   /// Otherwise, [fallback] widget will be used when build on first time or
   /// layout would not update when state is [ServiceInitial], which means layout
   /// will be preserved from previous build.
-  final Widget Function(BuildContext context, ServiceInitial state)? onInitial;
+  final Widget Function(
+    BuildContext context,
+    ServiceInitial state,
+  )? onInitial;
 
   /// A widget builder which is only called when [buildWhen] is omitted or
   /// custom [buildWhen] is passed and [onLoading] is not omitted and current
@@ -100,17 +76,19 @@ class ServiceBlocBuilder<
   /// Otherwise, layout would not update when state is [ServiceInitial], which
   /// means layout will be preserved from previous build.
   final Widget Function(
-      BuildContext context,
-      ServiceLoadInProgress<ServiceRequestedEvent> state,
-      ServiceRequestedEvent event)? onLoading;
+    BuildContext context,
+    ServiceLoadInProgress<ServiceRequestedEvent> state,
+    ServiceRequestedEvent event,
+  )? onLoading;
 
   /// A widget builder which is only called when [buildWhen] is omitted or
   /// custom [buildWhen] is passed and current state is [ServiceLoadSuccess].
   final Widget Function(
-      BuildContext context,
-      ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
-      ServiceRequestedEvent event,
-      ResponseData data) onSuccess;
+    BuildContext context,
+    ServiceLoadSuccess<ServiceRequestedEvent, ResponseData> state,
+    ServiceRequestedEvent event,
+    ResponseData data,
+  ) onSuccess;
 
   /// A widget builder which is only called when [buildWhen] is omitted or
   /// custom [buildWhen] is passed [onFailure] is not omitted and current state
@@ -119,10 +97,11 @@ class ServiceBlocBuilder<
   /// Otherwise, layout would not update when state is [ServiceLoadFailure],
   /// which means layout will be preserved from previous build.
   final Widget Function(
-      BuildContext context,
-      ServiceLoadFailure<ServiceRequestedEvent> state,
-      ServiceRequestedEvent event,
-      dynamic error)? onFailure;
+    BuildContext context,
+    ServiceLoadFailure<ServiceRequestedEvent> state,
+    ServiceRequestedEvent event,
+    dynamic error,
+  )? onFailure;
 
   /// A fallback widget for [builder] to use when build on first time or
   /// [buildWhen] got passed but widget builder function is omitted.
