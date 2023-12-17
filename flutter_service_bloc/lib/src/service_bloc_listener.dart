@@ -14,18 +14,16 @@ class ServiceBlocListener<
   /// A constructor for creating a [ServiceBlocListener] with predefined state
   /// callback.
   ServiceBlocListener({
-    Key? key,
-    Bloc? bloc,
+    super.key,
+    super.bloc,
     BlocListenerCondition<ServiceState>? listenWhen,
     this.onInitial,
     this.onLoading,
     this.onResponded,
     this.onSuccess,
     this.onFailure,
-    Widget? child,
+    super.child,
   }) : super(
-          key: key,
-          bloc: bloc,
           listenWhen: listenWhen ??
               (previous, current) => switch (current) {
                     ServiceInitial() => onInitial != null,
@@ -60,7 +58,6 @@ class ServiceBlocListener<
               onFailure(context, state, event, error),
             _ => () {},
           },
-          child: child,
         );
 
   /// A function which is only called when [listenWhen] is omitted or custom

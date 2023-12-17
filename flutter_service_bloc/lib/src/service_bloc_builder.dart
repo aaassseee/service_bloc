@@ -16,8 +16,8 @@ class ServiceBlocBuilder<
   /// A constructor for creating a [ServiceBlocBuilder] with predefined state
   /// widget builder.
   ServiceBlocBuilder({
-    Key? key,
-    Bloc? bloc,
+    super.key,
+    super.bloc,
     BlocBuilderCondition? buildWhen,
     this.onInitial,
     this.onLoading,
@@ -25,8 +25,6 @@ class ServiceBlocBuilder<
     this.onFailure,
     this.fallback = const SizedBox(),
   }) : super(
-          key: key,
-          bloc: bloc,
           buildWhen: buildWhen ??
               (previous, current) => switch (current) {
                     ServiceInitial() => onInitial != null,

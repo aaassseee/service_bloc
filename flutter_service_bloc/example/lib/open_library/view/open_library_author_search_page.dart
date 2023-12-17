@@ -8,7 +8,7 @@ import 'package:flutter_service_bloc/flutter_service_bloc.dart';
 class OpenLibraryAuthorSearchPage extends StatefulWidget {
   static const routeName = '/openLibraryAuthorSearch';
 
-  const OpenLibraryAuthorSearchPage({Key? key}) : super(key: key);
+  const OpenLibraryAuthorSearchPage({super.key});
 
   @override
   State<OpenLibraryAuthorSearchPage> createState() =>

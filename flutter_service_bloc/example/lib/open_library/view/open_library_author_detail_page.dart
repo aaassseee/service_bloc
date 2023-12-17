@@ -21,8 +21,7 @@ class OpenLibraryAuthorDetailPageParameter extends Equatable {
 class OpenLibraryAuthorDetailPage extends StatelessWidget {
   static const routeName = '/openLibraryAuthorDetail';
 
-  const OpenLibraryAuthorDetailPage({Key? key, required this.parameter})
-      : super(key: key);
+  const OpenLibraryAuthorDetailPage({super.key, required this.parameter});
 
   final OpenLibraryAuthorDetailPageParameter parameter;
 

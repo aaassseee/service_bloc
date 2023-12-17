@@ -1,6 +1,6 @@
 name: service_bloc
 description: Dart package for service layer implement with bloc architecture
-version: 4.0.0
+version: 3.0.0+1
 homepage: https://github.com/aaassseee/service_bloc
 repository: https://github.com/aaassseee/service_bloc/tree/main/service_bloc
 issue_tracker: https://github.com/aaassseee/service_bloc/issues
@@ -16,6 +16,6 @@ dependencies:
   meta: '>=1.8.0 <2.0.0'
 
 dev_dependencies:
-  test: ^1.21.6
-  bloc_test: ^9.1.0
-  flutter_lints: ^2.0.0
+  test: '>=1.0.0 <2.0.0'
+  bloc_test: '>=9.0.0 <10.0.0'
+  flutter_lints: '>=3.0.0 <4.0.0'
