@@ -1040,7 +1040,7 @@ class SampleServicePaginationFailureRequested
 
 class SampleServicePaginationReloadRequested
     extends SampleServicePaginationSuccessRequested with PaginationReload {
-  const SampleServicePaginationReloadRequested(String param) : super(param);
+  const SampleServicePaginationReloadRequested(super.param);
 }
 
 class SamplePageBasedPaginationListServiceBloc extends PaginationServiceBloc<

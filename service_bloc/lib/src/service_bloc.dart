@@ -33,14 +33,14 @@ abstract class ServiceBloc<ServiceRequestedEvent extends ServiceRequested,
 
   /// Quick shortcut for getting response data if state is [ServiceLoadSuccess].
   /// Otherwise, return null.
-  ResponseData? get data {
-    final state = this.state;
-    if (state is ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>) {
-      return state.data;
-    }
-
-    return null;
-  }
+  ResponseData? get data => switch (state) {
+        ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>(
+          event: _,
+          data: final data
+        ) =>
+          data,
+        _ => null,
+      };
 
   /// Quick shortcut for checking
   bool get hasData => data != null;

@@ -55,9 +55,9 @@ abstract class ServiceResponseState<
 class ServiceLoadSuccess<ServiceRequestedEvent extends ServiceRequested,
     ResponseData> extends ServiceResponseState<ServiceRequestedEvent> {
   const ServiceLoadSuccess({
-    required ServiceRequestedEvent event,
+    required super.event,
     required this.data,
-  }) : super(event: event);
+  });
 
   final ResponseData data;
 
@@ -80,9 +80,9 @@ class ServiceLoadSuccess<ServiceRequestedEvent extends ServiceRequested,
 class ServiceLoadFailure<ServiceRequestedEvent extends ServiceRequested>
     extends ServiceResponseState<ServiceRequestedEvent> {
   const ServiceLoadFailure({
-    required ServiceRequestedEvent event,
+    required super.event,
     this.error,
-  }) : super(event: event);
+  });
 
   final dynamic error;
 

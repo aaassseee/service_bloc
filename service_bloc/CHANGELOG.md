@@ -1,3 +1,7 @@
+## 3.0.1
+
+* migrate to dart 3.0 syntax
+
 ## 3.0.0+1
 
 * service bloc isFirstLoaded getter remove visibleForTesting annotation

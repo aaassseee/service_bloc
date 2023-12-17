@@ -68,7 +68,7 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   static const routeName = '/home';
 
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +172,7 @@ class OpenLibraryAuthorDetailServiceBloc extends ServiceBloc<
 class OpenLibraryAuthorSearchPage extends StatefulWidget {
   static const routeName = '/openLibraryAuthorSearch';
 
-  const OpenLibraryAuthorSearchPage({Key? key}) : super(key: key);
+  const OpenLibraryAuthorSearchPage({super.key});
 
   @override
   State<OpenLibraryAuthorSearchPage> createState() =>
@@ -296,8 +296,7 @@ class OpenLibraryAuthorDetailPageParameter extends Equatable {
 class OpenLibraryAuthorDetailPage extends StatelessWidget {
   static const routeName = '/openLibraryAuthorDetail';
 
-  const OpenLibraryAuthorDetailPage({Key? key, required this.parameter})
-      : super(key: key);
+  const OpenLibraryAuthorDetailPage({super.key, required this.parameter});
 
   final OpenLibraryAuthorDetailPageParameter parameter;
 
