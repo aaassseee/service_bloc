@@ -212,9 +212,10 @@ class PaginationListResponseData<ResponseData>
     PaginationResponseDataMigration<List<ResponseData>>? onMergingResponseData,
     super.onReloadResetResponseData,
   }) : super(
-            onMergingResponseData: (previousResponseData, responseData) =>
-                previousResponseData.cast<ResponseData>().toList()
-                  ..addAll(responseData));
+            onMergingResponseData: onMergingResponseData ??
+                (previousResponseData, responseData) =>
+                    previousResponseData.cast<ResponseData>().toList()
+                      ..addAll(responseData));
 }
 
 /// Object pagination response data holder and processor.
