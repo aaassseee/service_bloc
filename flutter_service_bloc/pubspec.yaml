@@ -1,6 +1,6 @@
 name: flutter_service_bloc
 description: Flutter package for service layer implement with bloc architecture
-version: 3.0.2
+version: 3.0.3
 homepage: https://github.com/aaassseee/service_bloc
 repository: https://github.com/aaassseee/service_bloc/tree/main/flutter_service_bloc
 issue_tracker: https://github.com/aaassseee/service_bloc/issues
