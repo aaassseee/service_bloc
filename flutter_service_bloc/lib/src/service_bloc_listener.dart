@@ -35,28 +35,46 @@ class ServiceBlocListener<
                       onResponded != null || onFailure != null,
                     _ => false,
                   },
-          listener: (context, state) => switch (state) {
-            ServiceInitial() when onInitial != null =>
-              onInitial(context, state),
-            ServiceLoadInProgress<ServiceRequestedEvent>(event: final event)
-                when onLoading != null =>
-              onLoading(context, state, event),
-            ServiceResponseState<ServiceRequestedEvent>(event: final event)
-                when onResponded != null =>
-              onResponded(context, state, event),
-            ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>(
-              event: final event,
-              data: final data
-            )
-                when onSuccess != null =>
-              onSuccess(context, state, event, data),
-            ServiceLoadFailure<ServiceRequestedEvent>(
-              event: final event,
-              error: final error
-            )
-                when onFailure != null =>
-              onFailure(context, state, event, error),
-            _ => () {},
+          listener: (context, state) {
+            switch (state) {
+              case ServiceInitial() when onInitial != null:
+                onInitial(context, state);
+                break;
+
+              case ServiceLoadInProgress<ServiceRequestedEvent>(
+                    event: final event
+                  )
+                  when onLoading != null:
+                onLoading(context, state, event);
+                break;
+
+              case ServiceResponseState<ServiceRequestedEvent>(
+                    event: final event
+                  )
+                  when onResponded != null:
+                {
+                  onResponded(context, state, event);
+                  switch (state) {
+                    case ServiceLoadSuccess<ServiceRequestedEvent,
+                            ResponseData>(event: final event, data: final data)
+                        when onSuccess != null:
+                      onSuccess(context, state, event, data);
+                      break;
+
+                    case ServiceLoadFailure<ServiceRequestedEvent>(
+                          event: final event,
+                          error: final error
+                        )
+                        when onFailure != null:
+                      onFailure(context, state, event, error);
+                      break;
+                  }
+                }
+                break;
+
+              default:
+                break;
+            }
           },
         );
 
