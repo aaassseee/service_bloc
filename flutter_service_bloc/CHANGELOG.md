@@ -1,3 +1,7 @@
+## 3.0.3
+
+* fix: service bloc listener not working with ServiceLoadSuccess and ServiceLoadFailure
+
 ## 3.0.2
 
 * migrate to dart 3.0 syntax
