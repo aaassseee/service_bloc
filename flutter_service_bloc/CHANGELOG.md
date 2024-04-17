@@ -1,3 +1,7 @@
+## 3.0.4
+
+* fix: bloc listener will not call onSuccess or onFailure when onResponded is null
+
 ## 3.0.3
 
 * fix: service bloc listener not working with ServiceLoadSuccess and ServiceLoadFailure
