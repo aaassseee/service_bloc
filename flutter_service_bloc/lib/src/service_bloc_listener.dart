@@ -49,11 +49,13 @@ class ServiceBlocListener<
                 break;
 
               case ServiceResponseState<ServiceRequestedEvent>(
-                    event: final event
-                  )
-                  when onResponded != null:
+                  event: final event
+                ):
                 {
-                  onResponded(context, state, event);
+                  if (onResponded != null) {
+                    onResponded(context, state, event);
+                  }
+
                   switch (state) {
                     case ServiceLoadSuccess<ServiceRequestedEvent,
                             ResponseData>(event: final event, data: final data)
