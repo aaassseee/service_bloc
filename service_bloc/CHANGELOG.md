@@ -1,3 +1,7 @@
+## 4.0.0+1
+
+* update dependencies
+
 ## 3.0.1
 
 * migrate to dart 3.0 syntax

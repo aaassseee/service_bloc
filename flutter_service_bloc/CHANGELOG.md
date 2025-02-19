@@ -1,3 +1,7 @@
+## 4.0.0
+
+* update dependencies
+
 ## 3.0.4
 
 * fix: bloc listener will not call onSuccess or onFailure when onResponded is null
