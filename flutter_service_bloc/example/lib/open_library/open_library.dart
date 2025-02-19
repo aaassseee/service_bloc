@@ -1,4 +1,4 @@
-library open_library;
+library;
 
 export 'bloc/service_bloc.dart';
 export 'constant/uri_constant.dart';

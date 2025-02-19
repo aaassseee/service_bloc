@@ -1,4 +1,4 @@
-library flutter_service_bloc;
+library;
 
 export 'package:service_bloc/service_bloc.dart';
 
