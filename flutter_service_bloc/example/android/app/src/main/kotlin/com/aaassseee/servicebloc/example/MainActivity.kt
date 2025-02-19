@@ -1,4 +1,4 @@
-package com.aaassseee.servicebloc.example.example
+package com.aaassseee.servicebloc.example
 
 import io.flutter.embedding.android.FlutterActivity
 
