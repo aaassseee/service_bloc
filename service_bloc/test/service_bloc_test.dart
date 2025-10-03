@@ -120,14 +120,60 @@ void main() {
     );
   });
 
-  group('page based pagination service', () {
-    group('page based pagination list service bloc', () {
-      test('page based pagination list service bloc initial state', () {
+  group('number based pagination service', () {
+    test('number based pagination initial page', () async {
+      // page 0
+      final serviceBloc =
+          SamplePageBasedPaginationListServiceBloc(initialPage: 1);
+      expect(serviceBloc.pagination.page, 1);
+      serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
+      await for (final state in serviceBloc.stream) {
+        if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.pagination.page, 1);
+          continue;
+        }
+
+        if (state is! ServiceResponseState) continue;
+        break;
+      }
+      expect(serviceBloc.pagination.page, 1);
+
+      // page 1
+      serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
+      await for (final state in serviceBloc.stream) {
+        if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.pagination.page, 2);
+          continue;
+        }
+
+        if (state is! ServiceResponseState) continue;
+        break;
+      }
+      expect(serviceBloc.pagination.page, 2);
+
+      // reload
+      serviceBloc.add(const SampleServicePaginationReloadRequested('param'));
+
+      await for (final state in serviceBloc.stream) {
+        if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.pagination.page, 1);
+          continue;
+        }
+
+        if (state is! ServiceResponseState) continue;
+        expect(state, isA<ServiceLoadSuccess>());
+        break;
+      }
+      expect(serviceBloc.pagination.page, 1);
+    });
+
+    group('number based pagination list service bloc', () {
+      test('number based pagination list service bloc initial state', () {
         final serviceBloc = SamplePageBasedPaginationListServiceBloc();
         expect(serviceBloc.state, ServiceInitial());
       });
 
-      test('page based pagination list service bloc initial data', () {
+      test('number based pagination list service bloc initial data', () {
         final serviceBloc = SamplePageBasedPaginationListServiceBloc();
         expect(serviceBloc.data, null);
         expect(serviceBloc.hasData, false);
@@ -137,7 +183,7 @@ void main() {
         expect(serviceBloc.isFirstLoaded, true);
       });
 
-      test('page based pagination list service bloc data', () async {
+      test('number based pagination list service bloc data', () async {
         // page 0
         final serviceBloc = SamplePageBasedPaginationListServiceBloc();
         serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
@@ -281,7 +327,7 @@ void main() {
       });
 
       blocTest<SamplePageBasedPaginationListServiceBloc, ServiceState>(
-        'page based pagination list service bloc requested success',
+        'number based pagination list service bloc requested success',
         build: () => SamplePageBasedPaginationListServiceBloc(),
         act: (bloc) =>
             bloc.add(const SampleServicePaginationSuccessRequested('param')),
@@ -296,7 +342,7 @@ void main() {
       );
 
       blocTest<SamplePageBasedPaginationListServiceBloc, ServiceState>(
-        'page based pagination list service bloc requested failure',
+        'number based pagination list service bloc requested failure',
         build: () => SamplePageBasedPaginationListServiceBloc(),
         act: (bloc) =>
             bloc.add(const SampleServicePaginationFailureRequested()),
@@ -310,13 +356,13 @@ void main() {
       );
     });
 
-    group('page based pagination object service bloc', () {
-      test('page based pagination object service bloc initial state', () {
+    group('number based pagination object service bloc', () {
+      test('number based pagination object service bloc initial state', () {
         final serviceBloc = SamplePageBasedPaginationObjectServiceBloc();
         expect(serviceBloc.state, ServiceInitial());
       });
 
-      test('page based pagination object service bloc initial data', () {
+      test('number based pagination object service bloc initial data', () {
         final serviceBloc = SamplePageBasedPaginationObjectServiceBloc();
         expect(serviceBloc.data, null);
         expect(serviceBloc.hasData, false);
@@ -326,7 +372,7 @@ void main() {
         expect(serviceBloc.isFirstLoaded, true);
       });
 
-      test('page based pagination object service bloc data', () async {
+      test('number based pagination object service bloc data', () async {
         // page 0
         final serviceBloc = SamplePageBasedPaginationObjectServiceBloc();
         serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
@@ -503,7 +549,7 @@ void main() {
       });
 
       blocTest<SamplePageBasedPaginationObjectServiceBloc, ServiceState>(
-        'page based pagination object service bloc requested success',
+        'number based pagination object service bloc requested success',
         build: () => SamplePageBasedPaginationObjectServiceBloc(),
         act: (bloc) =>
             bloc.add(const SampleServicePaginationSuccessRequested('param')),
@@ -518,7 +564,7 @@ void main() {
       );
 
       blocTest<SamplePageBasedPaginationObjectServiceBloc, ServiceState>(
-        'page based pagination object service bloc requested failure',
+        'number based pagination object service bloc requested failure',
         build: () => SamplePageBasedPaginationObjectServiceBloc(),
         act: (bloc) =>
             bloc.add(const SampleServicePaginationFailureRequested()),
@@ -534,6 +580,50 @@ void main() {
   });
 
   group('cursor based pagination service', () {
+    test('cursor based pagination initial page', () async {
+      // page 0
+      final serviceBloc =
+          SampleCursorBasedPaginationListServiceBloc(initialPage: '1');
+      serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
+      await for (final state in serviceBloc.stream) {
+        if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.pagination.page, '1');
+          continue;
+        }
+
+        if (state is! ServiceResponseState) continue;
+        break;
+      }
+      expect(serviceBloc.pagination.page, '1');
+
+      // page 1
+      serviceBloc.add(const SampleServicePaginationSuccessRequested('param'));
+      await for (final state in serviceBloc.stream) {
+        if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.pagination.page, '2');
+          continue;
+        }
+
+        if (state is! ServiceResponseState) continue;
+        break;
+      }
+      expect(serviceBloc.pagination.page, '2');
+
+      // reload
+      serviceBloc.add(const SampleServicePaginationReloadRequested('param'));
+
+      await for (final state in serviceBloc.stream) {
+        if (state is ServiceLoadInProgress) {
+          expect(serviceBloc.pagination.page, '1');
+          continue;
+        }
+
+        if (state is! ServiceResponseState) continue;
+        break;
+      }
+      expect(serviceBloc.pagination.page, '1');
+    });
+
     group('cursor based pagination list service bloc', () {
       test('cursor based pagination list service bloc initial state', () {
         final serviceBloc = SampleCursorBasedPaginationListServiceBloc();
@@ -1045,9 +1135,10 @@ class SampleServicePaginationReloadRequested
 
 class SamplePageBasedPaginationListServiceBloc extends PaginationServiceBloc<
     SampleServicePaginationRequestedBase, List<String>, num> {
-  SamplePageBasedPaginationListServiceBloc()
+  SamplePageBasedPaginationListServiceBloc({num initialPage = 0})
       : super(
           pagination: NumberBasedPagination(
+            initialPage: initialPage,
             onUpdateHasNextPage: (responseData) => responseData.isNotEmpty,
           ),
           paginationResponseData: PaginationListResponseData(),
@@ -1081,9 +1172,10 @@ class SamplePageBasedPaginationListServiceBloc extends PaginationServiceBloc<
 
 class SamplePageBasedPaginationObjectServiceBloc extends PaginationServiceBloc<
     SampleServicePaginationRequestedBase, SampleObject?, num> {
-  SamplePageBasedPaginationObjectServiceBloc()
+  SamplePageBasedPaginationObjectServiceBloc({num initialPage = 0})
       : super(
           pagination: NumberBasedPagination(
+            initialPage: initialPage,
             onUpdateHasNextPage: (responseData) =>
                 responseData != null &&
                 (responseData.data1.isNotEmpty ||
@@ -1141,9 +1233,10 @@ class SamplePageBasedPaginationObjectServiceBloc extends PaginationServiceBloc<
 
 class SampleCursorBasedPaginationListServiceBloc extends PaginationServiceBloc<
     SampleServicePaginationRequestedBase, List<String>, String?> {
-  SampleCursorBasedPaginationListServiceBloc()
+  SampleCursorBasedPaginationListServiceBloc({String? initialPage})
       : super(
           pagination: CursorBasedPagination(
+            initialPage: initialPage,
             onIncreasePage: (previousPage, responseData) =>
                 ((int.tryParse(previousPage ?? '0') ?? 0) + 1).toString(),
             onUpdateHasNextPage: (responseData) => responseData.isNotEmpty,
@@ -1182,9 +1275,10 @@ class SampleCursorBasedPaginationListServiceBloc extends PaginationServiceBloc<
 class SampleCursorBasedPaginationObjectServiceBloc
     extends PaginationServiceBloc<SampleServicePaginationRequestedBase,
         SampleObject?, String?> {
-  SampleCursorBasedPaginationObjectServiceBloc()
+  SampleCursorBasedPaginationObjectServiceBloc({String? initialPage})
       : super(
           pagination: CursorBasedPagination(
+            initialPage: initialPage,
             onIncreasePage: (previousPage, responseData) =>
                 ((int.tryParse(previousPage ?? '0') ?? 0) + 1).toString(),
             onUpdateHasNextPage: (responseData) =>
