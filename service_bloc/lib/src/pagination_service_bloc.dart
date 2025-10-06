@@ -113,7 +113,7 @@ class NumberBasedPagination<ResponseData>
   }) : super(
           onIncreasePage: onIncreasePage ??
               (previousPage, responseData) => previousPage + 1,
-          onReloadResetPage: onResetPage ?? () => 0,
+          onReloadResetPage: onResetPage ?? () => initialPage,
         );
 }
 
@@ -129,7 +129,7 @@ class CursorBasedPagination<ResponseData>
     required super.onIncreasePage,
     PageReset<String?>? onResetPage,
     required super.onUpdateHasNextPage,
-  }) : super(onReloadResetPage: onResetPage ?? () => null);
+  }) : super(onReloadResetPage: onResetPage ?? () => initialPage);
 }
 
 /// Type define function for migrate pagination response data.
