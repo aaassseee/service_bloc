@@ -1,3 +1,7 @@
+## 4.0.1
+
+* [#4] on reload reset should use initial page
+
 ## 4.0.0+1
 
 * update dependencies
