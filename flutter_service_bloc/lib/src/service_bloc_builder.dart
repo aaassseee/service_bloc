@@ -10,9 +10,9 @@ import 'package:service_bloc/service_bloc.dart';
 /// [onSuccess] is a required parameter so [buildWhen] will always return true if
 /// state is [ServiceLoadSuccess]
 class ServiceBlocBuilder<
-    Bloc extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
+    B extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
     ServiceRequestedEvent extends ServiceRequested,
-    ResponseData> extends BlocBuilder<Bloc, ServiceState> {
+    ResponseData> extends BlocBuilder<B, ServiceState> {
   /// A constructor for creating a [ServiceBlocBuilder] with predefined state
   /// widget builder.
   ServiceBlocBuilder({

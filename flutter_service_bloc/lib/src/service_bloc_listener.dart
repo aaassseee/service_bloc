@@ -8,9 +8,9 @@ import 'package:service_bloc/service_bloc.dart';
 /// true when certain parameter is set. For example [onInitial] [onLoading]
 /// [onResponded] [onSucceed] [onFailure].
 class ServiceBlocListener<
-    Bloc extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
+    B extends ServiceBloc<ServiceRequestedEvent, ResponseData>,
     ServiceRequestedEvent extends ServiceRequested,
-    ResponseData> extends BlocListener<Bloc, ServiceState> {
+    ResponseData> extends BlocListener<B, ServiceState> {
   /// A constructor for creating a [ServiceBlocListener] with predefined state
   /// callback.
   ServiceBlocListener({
