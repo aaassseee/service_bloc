@@ -5,7 +5,8 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-part 'service_event.dart';
+part 'service_event.dart';dart';
+
 part 'service_state.dart';
 
 /// Base class for service calling implement with bloc architecture.
@@ -15,7 +16,8 @@ part 'service_state.dart';
 ///
 /// Each [ServiceBloc] should only return a single base type as response type.
 abstract class ServiceBloc<ServiceRequestedEvent extends ServiceRequested,
-    ResponseData> extends Bloc<ServiceRequestedEvent, ServiceState> {
+        ResponseData>
+    extends Bloc<ServiceRequestedEvent, ServiceState<ResponseData>> {
   /// Constructor for creating [ServiceBloc].
   ///
   /// Parameter [eventTransformer] can be used for handing complex concurrent
@@ -23,24 +25,17 @@ abstract class ServiceBloc<ServiceRequestedEvent extends ServiceRequested,
   /// Check out [bloc_concurrency](https://pub.dev/packages/bloc_concurrency)
   /// for more detail.
   ServiceBloc({
+    required ResponseData initialData,
     EventTransformer<ServiceRequestedEvent>? eventTransformer,
-  }) : super(const ServiceInitial()) {
+  }) : super(ServiceInitial(data: initialData)) {
     on<ServiceRequestedEvent>(
       onServiceRequested,
       transformer: eventTransformer ?? droppable(),
     );
   }
 
-  /// Quick shortcut for getting response data if state is [ServiceLoadSuccess].
-  /// Otherwise, return null.
-  ResponseData? get data => switch (state) {
-        ServiceLoadSuccess<ServiceRequestedEvent, ResponseData>(
-          event: _,
-          data: final data
-        ) =>
-          data,
-        _ => null,
-      };
+  /// Quick shortcut for getting response data.
+  ResponseData get data => state.data;
 
   /// Quick shortcut for checking
   bool get hasData => data != null;
@@ -59,7 +54,7 @@ abstract class ServiceBloc<ServiceRequestedEvent extends ServiceRequested,
   @mustCallSuper
   FutureOr<void> onPreRequest(
       ServiceRequestedEvent event, Emitter<ServiceState> emit) {
-    emit(ServiceLoadInProgress(event: event));
+    emit(ServiceLoadInProgress(data: state.data, event: event));
   }
 
   /// Function for implementation of handling event process. All request must be

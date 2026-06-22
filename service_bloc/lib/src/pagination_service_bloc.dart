@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import '../service_bloc.dart';
 
 part 'pagination_service_event.dart';
+part 'pagination_service_state.dart';
 
 /// Type define function for increase page.
 typedef PageIncrement<PageType, ResponseData> = PageType Function(
@@ -256,7 +257,8 @@ abstract class PaginationServiceBloc<
     required PaginationResponseData<ResponseData> paginationResponseData,
     super.eventTransformer,
   })  : _pagination = pagination,
-        _paginationResponseData = paginationResponseData;
+        _paginationResponseData = paginationResponseData,
+        super(initialData: paginationResponseData);
 
   /// Pagination which is used to handle page store, modify and reset.
   final Pagination<PageType, ResponseData> _pagination;
